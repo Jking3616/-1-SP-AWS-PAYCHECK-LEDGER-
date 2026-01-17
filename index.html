@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PayCheck Calc v1.0</title>
+    <style>
+        :root {
+            --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --border: #333;
+            --row: #2a2a2a; --accent: #4dadff; --btn12: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+        
+        #app-slider { display: flex; width: 200vw; transition: transform 0.3s ease-out; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        .screen { width: 100vw; height: 100vh; overflow-y: auto; padding: 70px 10px 100px 10px; box-sizing: border-box; } 
+        
+        .nav-header { display: flex; justify-content: center; gap: 40px; position: fixed; top: 0; left: 0; width: 100%; background: rgba(18, 18, 18, 0.95); padding: 15px; z-index: 9999; border-bottom: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .nav-link { color: var(--dim); cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.9em; padding-bottom: 5px; user-select: none; }
+        .nav-link.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+
+        .day-card { display: flex; background: var(--row); margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; min-height: 120px; }
+        .day-label-vert { background: var(--border); width: 35px; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; transform: rotate(180deg); text-transform: uppercase; font-size: 11px; font-weight: 900; color: var(--accent); letter-spacing: 2px; }
+        .sun-card .day-label-vert { color: #ffa000; border-right: 3px solid #ffa000; }
+        .day-content { flex: 1; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+        .input-row { display: flex; align-items: center; gap: 8px; }
+        .btn-12 { flex: 1; height: 48px; border: none; border-radius: 6px; background: var(--btn12); color: white; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .btn-12.active { background: var(--success) !important; border: 2px solid white; }
+        .hrs-input { width: 55px; height: 48px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; }
+        
+        .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-top: 5px; width: 100%; }
+        .extra-rate-select.show { display: block; }
+
+        .status-stack { width: 95px; padding: 8px 5px; display: flex; flex-direction: column; gap: 5px; border-left: 1px solid var(--border); background: rgba(0,0,0,0.1); justify-content: center; }
+        .status-stack label { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+        .status-stack input { width: 16px; height: 16px; margin: 0; }
+        
+        .move-up-btn { background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 10px; padding: 6px; font-weight: bold; width: 100%; text-transform: uppercase; margin-top:5px; }
+        .move-up-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .move-up-zone { display: none; padding-top: 5px; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .move-up-zone.show { display: grid; }
+        .mu-help { grid-column: 1 / -1; font-size: 0.75em; color: var(--accent); font-style: italic; margin-bottom: 4px; }
+
+        .week-summary-grid { display: grid; grid-template-columns: 1.1fr 0.6fr 0.9fr 1.0fr; gap: 2px; padding: 10px; background: var(--row); border-radius: 10px; margin: 15px 0; border: 1px solid var(--border); font-size: 0.70em; align-items: center; }
+        .total-summary-grid { display: grid; grid-template-columns: 1.1fr 0.6fr 0.9fr 1.0fr; gap: 2px; padding: 10px; background: #1a1a1a; border-radius: 10px; margin: 15px 0 25px 0; border: 2px solid var(--accent); font-size: 0.70em; align-items: center; }
+        
+        .grid-label { text-align: left; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+        .grid-hours { text-align: right; color: var(--dim); font-family: monospace; }
+        .grid-rate  { text-align: right; color: #90caf9; font-family: monospace; letter-spacing: -0.5px; } 
+        .grid-amt { text-align: right; font-family: monospace; font-weight: bold; }
+        .grid-total { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 5px; margin-top: 5px; display: flex; justify-content: space-between; font-weight: bold; color: var(--accent); font-size: 1.3em; }
+
+        .deduction-list { font-size: 0.8em; color: var(--dim); padding: 15px; background: var(--row); border-radius: 12px; margin: 15px 0; border: 1px solid var(--border); }
+        .deduction-line { display: flex; justify-content: space-between; margin: 4px 0; font-family: 'Courier New', monospace; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .total-box { background: var(--accent); color: white; padding: 18px; border-radius: 12px; text-align: center; margin-bottom: 10px; }
+        .net-box { border: 2.5px solid var(--success); background: transparent; color: var(--success); }
+
+        .reset-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--danger); color: var(--danger); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; border-radius: 10px; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+        .reset-btn:active { background: var(--danger); color: white; }
+
+        .calibrate-box { background: #000; border: 1px solid var(--accent); border-radius: 10px; padding: 15px; margin-bottom: 20px; display: none; }
+        .calibrate-box.show { display: block; }
+        .cal-input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+        .pref-card { background: var(--row); padding: 18px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .pref-title { font-size: 0.7em; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; margin:0; }
+        .input-label { font-size: 11px; color: var(--dim); margin-bottom: 4px; display: block; }
+        input, select { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+
+        .rate-tool-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); margin-bottom: 12px; padding-bottom: 5px; }
+        .find-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 10px; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .find-btn:active { background: var(--accent); color: white; }
+        .rate-tool-box { display: none; background: #000; border: 1px solid var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+        .rate-tool-box.show { display: block; }
+        .rt-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
+        .apply-btn { background: #333; color: white; border: none; padding: 6px; font-size: 10px; border-radius: 4px; cursor: pointer; }
+        .apply-btn:active { background: var(--success); }
+        .vac-display { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; color: #ffeb3b; font-weight: bold; font-family: monospace; text-align: right; }
+        
+        .instruction-box { background: rgba(77, 173, 255, 0.1); border-left: 4px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .inst-text { font-size: 13px; color: #fff; line-height: 1.4; margin: 0 0 8px 0; }
+        .inst-step { display: block; margin-bottom: 5px; font-weight: bold; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="nav-header">
+    <div id="nav-entry" class="nav-link active" onclick="swipeTo(0)">Entry</div>
+    <div id="nav-settings" class="nav-link" onclick="swipeTo(1)">Settings</div>
+</div>
+
+<div id="app-slider">
+    <div class="screen">
+        <div id="calculator-content"></div>
+        <div id="total-ledger-content"></div>
+        <div class="total-box"><div style="font-size: 0.7em; letter-spacing:1px;">14-DAY GROSS</div><div id="grossDisplay" style="font-size: 28px; font-weight: 800;">$0.00</div></div>
+        <div class="deduction-list" id="summary-deductions"></div>
+        <div class="total-box net-box"><div style="font-size: 0.7em; letter-spacing:1px;">NET TAKE HOME</div><div id="netDisplay" style="font-size: 32px; font-weight: 800;">$0.00</div></div>
+        <button class="reset-btn" onclick="resetAll()">Reset Entries</button>
+    </div>
+
+    <div class="screen">
+        
+        <div class="instruction-box">
+            <span class="inst-step">Step 1: Set Baseline</span>
+            <p class="inst-text">Enter your <b>Prior Year W2 Gross</b> (minus quarterly profit sharing) to calculate your Vacation Rate for the current year. Select your Default Job Class.</p>
+            <span class="inst-step">Step 2: Calibrate Taxes</span>
+            <p class="inst-text" style="margin:0;">Use the <b>Tax Calibrator</b> with your most recent paystub to find your true Federal % and enter your specific deductions (Loans, Charity, etc).</p>
+        </div>
+
+        <div class="pref-card">
+            <span class="pref-title">1. Base Configuration</span>
+            <span class="input-label">Default Job Class</span>
+            <select id="globalRate" onchange="calc(); saveSettings();">
+                <option value="5">Level 5</option>
+                <option value="4">Level 4</option>
+                <option value="3">Level 3</option>
+                <option value="2">Level 2</option>
+                <option value="1">Level 1</option>
+            </select>
+            
+            <div style="margin: 15px 0; border-top: 1px solid var(--border); padding-top:10px;">
+                <span class="pref-title" style="color:var(--dim); font-size:0.65em;">PAY RATE DEFINITIONS (EDITABLE)</span>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:5px;">
+                    <div><span class="input-label">L5 Rate ($)</span><input type="number" id="rateL5" value="38.37" oninput="calc(); saveSettings();"></div>
+                    <div><span class="input-label">L4 Rate ($)</span><input type="number" id="rateL4" value="36.12" oninput="calc(); saveSettings();"></div>
+                    <div><span class="input-label">L3 Rate ($)</span><input type="number" id="rateL3" value="34.32" oninput="calc(); saveSettings();"></div>
+                    <div><span class="input-label">L2 Rate ($)</span><input type="number" id="rateL2" value="31.21" oninput="calc(); saveSettings();"></div>
+                    <div><span class="input-label">L1 Rate ($)</span><input type="number" id="rateL1" value="28.51" oninput="calc(); saveSettings();"></div>
+                </div>
+            </div>
+
+            <span class="input-label">Prior Year W2 (minus quarterly profit sharing)</span>
+            <input type="number" id="prevW2" placeholder="0.00" oninput="calc(); saveSettings();">
+            <div id="vacRateDisplay" class="vac-display">Vacation Rate: $0.00 / hr</div>
+        </div>
+
+        <div class="pref-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="pref-title">2. Tax Calibrator (Forward Thinking)</span>
+                <button onclick="document.getElementById('cal-box').classList.toggle('show')" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:4px; font-size:10px; font-weight:bold;">OPEN TOOL</button>
+            </div>
+            <div id="cal-box" class="calibrate-box">
+                <span class="input-label">Last Stub Total Gross</span>
+                <input type="number" id="cal-gross" placeholder="e.g. 4646.37">
+                <div class="cal-input-group">
+                    <div><span class="input-label">Last 401k ($)</span><input type="number" id="cal-401k" placeholder="e.g. 325.25"></div>
+                    <div><span class="input-label">Last Fed Tax ($)</span><input type="number" id="cal-fed" placeholder="e.g. 702.88"></div>
+                </div>
+                <button onclick="runCalibration()" style="width:100%; padding:12px; background:var(--success); color:white; border:none; border-radius:6px; font-weight:bold;">CALIBRATE FEDERAL %</button>
+                <div id="cal-result" style="margin-top:10px; text-align:center; font-weight:bold; color:var(--accent); font-size:14px;"></div>
+            </div>
+        </div>
+
+        <div class="pref-card">
+            <div class="rate-tool-header">
+                <span class="pref-title">3. Tax & Retirement (%)</span>
+                <button class="find-btn" onclick="toggleRateTool()">FIND %</button>
+            </div>
+            <div id="rate-tool" class="rate-tool-box">
+                <div style="font-size:10px; color:var(--dim); margin-bottom:5px; text-transform:uppercase; font-weight:bold;">Percentage Calculator</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                    <input type="number" id="rt-gross" placeholder="Taxable Gross" style="font-size:14px; padding:8px; margin:0;">
+                    <input type="number" id="rt-tax" placeholder="Tax Amount" style="font-size:14px; padding:8px; margin:0;">
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                    <button onclick="calcRateResult()" style="background:var(--accent); color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold; font-size:12px;">CALCULATE</button>
+                    <span id="rt-result" style="font-weight:800; color:var(--success); font-size:18px;">0.00%</span>
+                </div>
+                <div class="rt-actions">
+                    <button class="apply-btn" onclick="applyRate('fedTaxRate')">Set Fed</button>
+                    <button class="apply-btn" onclick="applyRate('stateTaxRate')">Set State</button>
+                    <button class="apply-btn" onclick="applyRate('cityTaxRate')">Set City</button>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">401k Contribution %</span><input type="number" id="kRate" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">Fed W/H %</span><input type="number" id="fedTaxRate" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">Ohio W/H %</span><input type="number" id="stateTaxRate" value="2.75" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">ClvlndCityW/H %</span><input type="number" id="cityTaxRate" value="2.5" oninput="calc(); saveSettings();"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">FICA EE %</span><input type="number" id="ficaRate" value="6.2" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">Fed MWT EE %</span><input type="number" id="medRate" value="1.45" oninput="calc(); saveSettings();"></div>
+            </div>
+        </div>
+
+        <div class="pref-card">
+            <span class="pref-title">4. Flat Deductions ($)</span>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">401K BU Loan 1</span><input type="number" id="loan1" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">401K BU Loan 2</span><input type="number" id="loan2" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">OPTL Life EE</span><input type="number" id="lifeEE" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">Addl Optional</span><input type="number" id="addOpt" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span class="input-label">Charity</span><input type="number" id="charity" placeholder="0.00" oninput="calc(); saveSettings();"></div>
+                <div><span class="input-label">USW Dues %</span><input type="number" id="duesRate" value="1.45" oninput="calc(); saveSettings();"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let manualMode = { 'bonus-1': false, 'bonus-2': false };
+
+    function swipeTo(idx) { 
+        document.getElementById('app-slider').style.transform = `translateX(-${idx * 100}vw)`; 
+        document.getElementById('nav-entry').classList.toggle('active', idx === 0); 
+        document.getElementById('nav-settings').classList.toggle('active', idx === 1); 
+        window.scrollTo(0,0);
+    }
+
+    function getRate(level) {
+        if(level == 5) return parseFloat(document.getElementById('rateL5').value) || 0;
+        if(level == 4) return parseFloat(document.getElementById('rateL4').value) || 0;
+        if(level == 3) return parseFloat(document.getElementById('rateL3').value) || 0;
+        if(level == 2) return parseFloat(document.getElementById('rateL2').value) || 0;
+        if(level == 1) return parseFloat(document.getElementById('rateL1').value) || 0;
+        return 0;
+    }
+
+    function setup() {
+        const container = document.getElementById('calculator-content');
+        if(!container) return;
+        
+        container.innerHTML = "";
+        
+        // RE-GENERATE DROPDOWNS BASED ON SETTINGS
+        let r5 = document.getElementById('rateL5').value;
+        let r4 = document.getElementById('rateL4').value;
+        let r3 = document.getElementById('rateL3').value;
+        let r2 = document.getElementById('rateL2').value;
+        let r1 = document.getElementById('rateL1').value;
+
+        let optionsHTML = `
+            <option value="0">OT Rate (Default)</option>
+            <option value="5">L5 - $${r5}</option>
+            <option value="4">L4 - $${r4}</option>
+            <option value="3">L3 - $${r3}</option>
+            <option value="2">L2 - $${r2}</option>
+            <option value="1">L1 - $${r1}</option>
+        `;
+
+        let stepOptionsHTML = `
+            <option value="0">Rate</option>
+            <option value="5">L5</option><option value="4">L4</option>
+            <option value="3">L3</option><option value="2">L2</option><option value="1">L1</option>
+        `;
+
+        for(let w=1; w<=2; w++) {
+            container.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0 10px 0;">
+                <b style="color:var(--accent)">WEEK ${w}</b>
+                <div style="width:105px;">
+                    <input type="number" id="bonus-${w}" 
+                        style="background:#004d40; color:white; margin:0; border:none; padding:8px; border-radius:6px; width:100%;" 
+                        value="0" placeholder="Inc %" 
+                        onkeydown="checkForDot(event, this)"
+                        oninput="handleBonusInput(this)"
+                        onfocus="if(this.value==0)this.value=''" 
+                        onblur="if(this.value=='')this.value=0">
+                </div>
+            </div>`;
+            days.forEach((day, i) => {
+                let isSun = (day === 'Sun');
+                container.innerHTML += `
+                <div class="day-card ${isSun?'sun-card':''}">
+                    <div class="day-label-vert">${day}</div>
+                    <div class="day-content">
+                        <div class="input-row">
+                            <button class="btn-12" id="btn-${w}-${i}" onclick="toggle12(${w},${i})">12 HR</button>
+                            <input type="number" id="in-${w}-${i}" class="hrs-input" placeholder="Hrs" oninput="manualEntry(${w},${i})">
+                        </div>
+                        <select id="extra-rate-${w}-${i}" class="extra-rate-select" onchange="calc()">
+                            ${optionsHTML}
+                        </select>
+                        <button class="move-up-btn" id="toggle-${w}-${i}" onclick="toggleZone(${w},${i})">MOVE-UP / SPLIT</button>
+                        <div class="move-up-zone" id="zone-${w}-${i}">
+                            <div class="mu-help">ℹ️ Input Total Hours above. Enter only Move-Up hours here.</div>
+                            <input type="number" id="step-hrs-${w}-${i}" placeholder="Hrs" oninput="calc()">
+                            <select id="step-rate-${w}-${i}" onchange="calc()">
+                                ${stepOptionsHTML}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="status-stack">
+                        <label style="color:#ff5252"><input type="checkbox" id="check-${w}-${i}" onchange="toggleExtra(${w},${i})">Extra</label>
+                        <label style="color:#64ffda"><input type="checkbox" id="call-${w}-${i}" onchange="calc()">Call Out</label>
+                        ${!isSun ? `<label style="color:#ba68c8"><input type="checkbox" id="hol-${w}-${i}" onchange="calc()">Holiday</label>` : ''}
+                        ${isSun ? `<label style="color:#ffeb3b"><input type="checkbox" id="vw-${w}" onchange="toggleVW(${w})">VW</label>` : ''}
+                        <label style="color:#ffeb3b"><input type="checkbox" id="vd-${w}-${i}" onchange="calc()">VD</label>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML += `<div id="sum-${w}"></div>`;
+        }
+        
+        calc();
+    }
+
+    function checkForDot(e, el) {
+        if (e.key === '.' || e.key === 'Decimal') {
+            manualMode[el.id] = true;
+        }
+        if (e.key === 'Backspace' && el.value.length <= 1) {
+             manualMode[el.id] = false;
+        }
+    }
+
+    function handleBonusInput(el) {
+        if (manualMode[el.id]) {
+            calc();
+            return;
+        }
+        
+        let raw = el.value.replace(/\D/g, '');
+        if (raw) {
+            let val = parseInt(raw, 10);
+            el.value = (val / 10).toFixed(1);
+        }
+        calc();
+    }
+
+    function runCalibration() {
+        let g = parseFloat(document.getElementById('cal-gross').value)||0;
+        let k = parseFloat(document.getElementById('cal-401k').value)||0;
+        let f = parseFloat(document.getElementById('cal-fed').value)||0;
+        let taxable = g - k;
+        if(taxable > 0) {
+            let res = (f / taxable) * 100;
+            document.getElementById('fedTaxRate').value = res.toFixed(2);
+            document.getElementById('cal-result').innerText = `CALIBRATED: ${res.toFixed(2)}% Applied!`;
+            calc(); saveSettings();
+        }
+    }
+
+    function toggle12(w, d) { let b = document.getElementById('btn-'+w+'-'+d); b.classList.toggle('active'); if(b.classList.contains('active')) document.getElementById('in-'+w+'-'+d).value=""; calc(); }
+    function manualEntry(w, d) { if(document.getElementById('in-'+w+'-'+d).value!=="") document.getElementById('btn-'+w+'-'+d).classList.remove('active'); calc(); }
+    function toggleExtra(w, d) { let chk = document.getElementById('check-'+w+'-'+d); let sel = document.getElementById('extra-rate-'+w+'-'+d); if(chk.checked) sel.classList.add('show'); else { sel.classList.remove('show'); sel.value="0"; } calc(); }
+    function toggleVW(w) { days.forEach((d, i) => { document.getElementById('btn-'+w+'-'+i).classList.remove('active'); document.getElementById('in-'+w+'-'+i).value=""; }); calc(); }
+    function toggleZone(w, d) { document.getElementById('zone-'+w+'-'+d).classList.toggle('show'); }
+
+    function safeSetVal(id, val) { let el = document.getElementById(id); if(el) el.value = val; }
+    function resetAll() {
+        if(!confirm("Are you sure you want to clear all entries?")) return;
+        for(let w=1; w<=2; w++) {
+            safeSetVal('bonus-'+w, 0); if(document.getElementById('vw-'+w)) document.getElementById('vw-'+w).checked = false;
+            for(let d=0; d<=6; d++) {
+                safeSetVal('in-'+w+'-'+d, ""); safeSetVal('step-hrs-'+w+'-'+d, ""); safeSetVal('step-rate-'+w+'-'+d, "0");
+                if(document.getElementById('check-'+w+'-'+d)) document.getElementById('check-'+w+'-'+d).checked = false;
+                if(document.getElementById('call-'+w+'-'+d)) document.getElementById('call-'+w+'-'+d).checked = false;
+                if(document.getElementById('hol-'+w+'-'+d)) document.getElementById('hol-'+w+'-'+d).checked = false;
+                if(document.getElementById('vd-'+w+'-'+d)) document.getElementById('vd-'+w+'-'+d).checked = false;
+                let extraSel = document.getElementById('extra-rate-'+w+'-'+d); if(extraSel) { extraSel.value = "0"; extraSel.classList.remove('show'); }
+                let b = document.getElementById('btn-'+w+'-'+d); if(b) b.classList.remove('active');
+                let z = document.getElementById('zone-'+w+'-'+d); if(z) z.classList.remove('show');
+            }
+        }
+        manualMode = { 'bonus-1': false, 'bonus-2': false };
+        calc();
+    }
+
+    function toggleRateTool() { let t = document.getElementById('rate-tool'); if(t) t.classList.toggle('show'); }
+    function calcRateResult() {
+        let g = parseFloat(document.getElementById('rt-gross').value)||0;
+        let t = parseFloat(document.getElementById('rt-tax').value)||0;
+        if(g > 0) { document.getElementById('rt-result').innerText = ((t / g) * 100).toFixed(2) + '%'; }
+    }
+    function applyRate(targetId) {
+        let res = document.getElementById('rt-result').innerText;
+        if(res !== '0.00%') { document.getElementById(targetId).value = parseFloat(res).toFixed(2); calc(); saveSettings(); alert('Updated!'); }
+    }
+
+    function fR(n) { return '$' + (n || 0).toFixed(4); }
+    function f(n) { return new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(n); }
+
+    function calc() {
+        try {
+            let level = document.getElementById('globalRate').value;
+            let gRate = getRate(level);
+            
+            let prevW2 = parseFloat(document.getElementById('prevW2').value) || 0;
+            let vacHourly = Math.max((prevW2 * 0.02) / 40, gRate);
+            document.getElementById('vacRateDisplay').innerText = `Vacation Rate: ${f(vacHourly)} / hr`;
+
+            let totalGross = 0, totalWorkHrs = 0, totalVacHrs = 0;
+            let GT = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0 };
+            let shiftHours = 0;
+
+            for (let w = 1; w <= 2; w++) {
+                let buck = 0, incC = 0, calC = 0, rC = 0, vC = 0, oC = 0, sC = 0, hC = 0, uhC = 0, uhHours = 0;
+                let rHours = 0, vHours = 0, oHours = 0, cHours = 0, sHours = 0, hHours = 0; 
+                let isVW = document.getElementById('vw-'+w).checked;
+                let bPct = (parseFloat(document.getElementById('bonus-'+w).value)||0) / 100;
+
+                if(isVW) { vC = vacHourly * 40; vHours = 40; }
+                else {
+                    for (let d = 0; d <= 6; d++) {
+                        let vd = document.getElementById('vd-'+w+'-'+d).checked;
+                        if(vd) { vC += (vacHourly * 8); vHours += 8; continue; }
+                        
+                        let btn = document.getElementById('btn-'+w+'-'+d).classList.contains('active');
+                        let rawH = parseFloat(document.getElementById('in-'+w+'-'+d).value) || 0;
+                        let tH = btn ? 12 : rawH;
+                        let isExtra = document.getElementById('check-'+w+'-'+d).checked;
+                        
+                        let extraVal = document.getElementById('extra-rate-'+w+'-'+d).value;
+                        let effectiveRate = (isExtra && extraVal != "0") ? getRate(extraVal) : gRate;
+                        
+                        let stepH = parseFloat(document.getElementById('step-hrs-'+w+'-'+d).value) || 0;
+                        let stepVal = document.getElementById('step-rate-'+w+'-'+d).value;
+                        let stepR = (stepVal != "0") ? getRate(stepVal) : 0;
+                        
+                        let call = document.getElementById('call-'+w+'-'+d).checked;
+                        if(call) { calC += (effectiveRate * 2); cHours += 2; }
+                        let hol = (d!==0) ? document.getElementById('hol-'+w+'-'+d).checked : false;
+                        if (hol && tH === 0) { uhC += (gRate * 8); uhHours += 8; }
+
+                        let fillsBucket = false;
+                        if(d === 0) {
+                            fillsBucket = true;
+                        } else {
+                            if(!isExtra && !hol) {
+                                fillsBucket = true;
+                            }
+                        }
+
+                        let maxBlocks = Math.round(tH * 4);
+                        for (let b = 1; b <= maxBlocks; b++) {
+                            let h = b / 4;
+                            let curR = (h > (tH - stepH) && stepR > 0) ? stepR : effectiveRate;
+                            let currentMult = 1.0;
+                            
+                            if (hol) currentMult = 2.5;
+                            else if (isExtra || d===0 || buck >= 40) currentMult = 1.5;
+
+                            if (hol) { hC += (curR * currentMult * 0.25); hHours += 0.25; }
+                            else if (currentMult === 1.5) {
+                                if(d===0) { sC += (curR * currentMult * 0.25); sHours += 0.25; }
+                                else { oC += (curR * currentMult * 0.25); oHours += 0.25; }
+                            } else {
+                                rC += (curR * 1.0 * 0.25); rHours += 0.25;
+                            }
+                            incC += (curR * currentMult * 0.25);
+                            
+                            if(fillsBucket) buck += 0.25;
+                        }
+                    }
+                }
+                let wkG = rC+vC+oC+sC+hC+uhC+calC+(incC*bPct); totalGross += wkG;
+                totalWorkHrs += (rHours + oHours + sHours + hHours + cHours);
+                totalVacHrs += vHours;
+                GT.rH+=rHours; GT.rC+=rC; GT.vH+=vHours; GT.vC+=vC; GT.oH+=oHours; GT.oC+=oC;
+                GT.cH+=cHours; GT.cC+=calC; GT.sH+=sHours; GT.sC+=sC; GT.hH+=hHours; GT.hC+=hC;
+                GT.uhH+=uhHours; GT.uhC+=uhC; GT.incC+=(incC*bPct);
+                shiftHours += (rHours + oHours + sHours + hHours);
+
+                document.getElementById('sum-'+w).innerHTML = `<div class="week-summary-grid">
+                    <div class="grid-label">Regular</div><div class="grid-hours">${rHours.toFixed(2)}h</div><div class="grid-rate">${fR(rHours>0?rC/rHours:gRate)}</div><div class="grid-amt">${f(rC)}</div>
+                    <div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${vHours.toFixed(2)}h</div><div class="grid-rate">${fR(vacHourly)}</div><div class="grid-amt">${f(vC)}</div>
+                    <div class="grid-label">Overtime</div><div class="grid-hours">${oHours.toFixed(2)}h</div><div class="grid-rate">${fR(oHours>0?oC/oHours:gRate*1.5)}</div><div class="grid-amt">${f(oC)}</div>
+                    <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${cHours.toFixed(2)}h</div><div class="grid-rate">${fR(cHours>0?calC/cHours:gRate)}</div><div class="grid-amt">${f(calC)}</div>
+                    <div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${sHours.toFixed(2)}h</div><div class="grid-rate">${fR(sHours>0?sC/sHours:gRate*1.5)}</div><div class="grid-amt">${f(sC)}</div>
+                    <div class="grid-label" style="color:#ba68c8">Holiday Wkd</div><div class="grid-hours">${hHours.toFixed(2)}h</div><div class="grid-rate">${fR(hHours>0?hC/hHours:gRate*2.5)}</div><div class="grid-amt">${f(hC)}</div>
+                    <div class="grid-label" style="color:#e1bee7">Holiday UW</div><div class="grid-hours">${uhHours.toFixed(2)}h</div><div class="grid-rate">${fR(gRate)}</div><div class="grid-amt">${f(uhC)}</div>
+                    <div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours">${(bPct*100).toFixed(1)}%</div><div class="grid-rate"></div><div class="grid-amt">${f(incC*bPct)}</div>
+                    <div class="grid-total"><span>Week ${w} Gross</span><span>${f(wkG)}</span></div></div>`;
+            }
+
+            let trRate = GT.rH > 0 ? (GT.rC/GT.rH) : gRate;
+            let tvRate = GT.vH > 0 ? (GT.vC/GT.vH) : vacHourly;
+            let toRate = GT.oH > 0 ? (GT.oC/GT.oH) : (gRate*1.5);
+            let tcRate = GT.cH > 0 ? (GT.cC/GT.cH) : gRate;
+            let tsRate = GT.sH > 0 ? (GT.sC/GT.sH) : (gRate*1.5);
+            let thRate = GT.hH > 0 ? (GT.hC/GT.hH) : (gRate*2.5);
+            let tuhRate = gRate;
+            let shiftAmt = shiftHours * 0.25; 
+            totalGross += shiftAmt;
+
+            document.getElementById('total-ledger-content').innerHTML = `
+                <div class="total-summary-grid">
+                    <div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(trRate)}</div><div class="grid-amt">${f(GT.rC)}</div>
+                    <div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours" style="color:#ffeb3b">${GT.vH.toFixed(2)}h</div><div class="grid-rate" style="color:#ffeb3b">${fR(tvRate)}</div><div class="grid-amt" style="color:#ffeb3b">${f(GT.vC)}</div>
+                    <div class="grid-label">Overtime</div><div class="grid-hours">${GT.oH.toFixed(2)}h</div><div class="grid-rate">${fR(toRate)}</div><div class="grid-amt">${f(GT.oC)}</div>
+                    <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours" style="color:#64ffda">${GT.cH.toFixed(2)}h</div><div class="grid-rate" style="color:#64ffda">${fR(tcRate)}</div><div class="grid-amt" style="color:#64ffda">${f(GT.cC)}</div>
+                    <div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours" style="color:#ffa000">${GT.sH.toFixed(2)}h</div><div class="grid-rate" style="color:#ffa000">${fR(tsRate)}</div><div class="grid-amt" style="color:#ffa000">${f(GT.sC)}</div>
+                    <div class="grid-label" style="color:#ba68c8">Holiday Wkd</div><div class="grid-hours" style="color:#ba68c8">${GT.hH.toFixed(2)}h</div><div class="grid-rate" style="color:#ba68c8">${fR(thRate)}</div><div class="grid-amt" style="color:#ba68c8">${f(GT.hC)}</div>
+                    <div class="grid-label" style="color:#e1bee7">Holiday UW</div><div class="grid-hours" style="color:#e1bee7">${GT.uhH.toFixed(2)}h</div><div class="grid-rate" style="color:#e1bee7">${fR(tuhRate)}</div><div class="grid-amt" style="color:#e1bee7">${f(GT.uhC)}</div>
+                    <div class="grid-label" style="color:#ce93d8">Shift</div><div class="grid-hours" style="color:#ce93d8">${shiftHours.toFixed(2)}h</div><div class="grid-rate" style="color:#ce93d8">$0.2500</div><div class="grid-amt" style="color:#ce93d8">${f(shiftAmt)}</div>
+                    <div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours" style="color:#b2dfdb">---</div><div class="grid-rate" style="color:#b2dfdb"></div><div class="grid-amt" style="color:#b2dfdb">${f(GT.incC)}</div>
+                    <div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div>
+                </div>`;
+
+            document.getElementById('grossDisplay').innerText = f(totalGross);
+            
+            let kVal = totalGross * (parseFloat(document.getElementById('kRate').value)||0)/100;
+            let taxableG = totalGross - kVal;
+            
+            let fV = taxableG * (parseFloat(document.getElementById('fedTaxRate').value)||0)/100;
+            let sV = taxableG * (parseFloat(document.getElementById('stateTaxRate').value)||0)/100;
+            let ciV = totalGross * (parseFloat(document.getElementById('cityTaxRate').value)||0)/100;
+            let fiV = totalGross * (parseFloat(document.getElementById('ficaRate').value)||0)/100;
+            let mV = totalGross * (parseFloat(document.getElementById('medRate').value)||0)/100;
+            let duV = totalGross * (parseFloat(document.getElementById('duesRate').value)||0)/100;
+            let duHrV = (totalWorkHrs + totalVacHrs) * 0.02;
+            
+            let l1 = parseFloat(document.getElementById('loan1').value)||0;
+            let l2 = parseFloat(document.getElementById('loan2').value)||0;
+            let li = parseFloat(document.getElementById('lifeEE').value)||0;
+            let ad = parseFloat(document.getElementById('addOpt').value)||0;
+            let ch = parseFloat(document.getElementById('charity').value)||0;
+
+            document.getElementById('summary-deductions').innerHTML = `
+                <div class="deduction-line"><span>401k Contribution</span><span>-${f(kVal)}</span></div>
+                <div class="deduction-line"><span>Fed W/H</span><span>-${f(fV)}</span></div>
+                <div class="deduction-line"><span>FICA EE</span><span>-${f(fiV)}</span></div>
+                <div class="deduction-line"><span>Fed MWT EE (medicare)</span><span>-${f(mV)}</span></div>
+                <div class="deduction-line"><span>Ohio W/H</span><span>-${f(sV)}</span></div>
+                <div class="deduction-line"><span>ClvlndCityW/H</span><span>-${f(ciV)}</span></div>
+                <div class="deduction-line"><span>USW Dues</span><span>-${f(duV)}</span></div>
+                <div class="deduction-line"><span>USW Dues Hrs</span><span>-${f(duHrV)}</span></div>
+                <div class="deduction-line"><span>OPTL Life EE</span><span>-${f(li)}</span></div>
+                <div class="deduction-line"><span>Addl Optional</span><span>-${f(ad)}</span></div>
+                <div class="deduction-line"><span>Charity</span><span>-${f(ch)}</span></div>
+                <div class="deduction-line"><span>401K BU Loan 1</span><span>-${f(l1)}</span></div>
+                <div class="deduction-line"><span>401K BU Loan 2</span><span>-${f(l2)}</span></div>`;
+            
+            let net = totalGross - kVal - fV - sV - ciV - fiV - mV - duV - duHrV - l1 - l2 - li - ad - ch;
+            document.getElementById('netDisplay').innerText = f(net > 0 ? net : 0);
+        } catch(e) { console.error(e); }
+    }
+
+    function saveSettings() {
+        const s = { 
+            r: document.getElementById('globalRate').value, f: document.getElementById('fedTaxRate').value, st: document.getElementById('stateTaxRate').value, k: document.getElementById('kRate').value, 
+            l1: document.getElementById('loan1').value, l2: document.getElementById('loan2').value, li: document.getElementById('lifeEE').value, ad: document.getElementById('addOpt').value, 
+            ch: document.getElementById('charity').value, du: document.getElementById('duesRate').value, w2: document.getElementById('prevW2').value, ct: document.getElementById('cityTaxRate').value,
+            rl5: document.getElementById('rateL5').value, rl4: document.getElementById('rateL4').value, rl3: document.getElementById('rateL3').value, rl2: document.getElementById('rateL2').value, rl1: document.getElementById('rateL1').value 
+        };
+        localStorage.setItem('paycheck_calc_v1', JSON.stringify(s));
+        setup();
+    }
+    
+    function loadSettings() {
+        try {
+            const s = JSON.parse(localStorage.getItem('paycheck_calc_v1'));
+            if(s) { 
+                document.getElementById('globalRate').value = s.r; document.getElementById('fedTaxRate').value = s.f; 
+                document.getElementById('stateTaxRate').value = s.st; document.getElementById('kRate').value = s.k; 
+                document.getElementById('loan1').value = s.l1; document.getElementById('loan2').value = s.l2; 
+                document.getElementById('lifeEE').value = s.li; document.getElementById('addOpt').value = s.ad; 
+                document.getElementById('charity').value = s.ch; document.getElementById('duesRate').value = s.du; 
+                document.getElementById('prevW2').value = s.w2; document.getElementById('cityTaxRate').value = s.ct;
+                if(s.rl5) document.getElementById('rateL5').value = s.rl5;
+                if(s.rl4) document.getElementById('rateL4').value = s.rl4;
+                if(s.rl3) document.getElementById('rateL3').value = s.rl3;
+                if(s.rl2) document.getElementById('rateL2').value = s.rl2;
+                if(s.rl1) document.getElementById('rateL1').value = s.rl1;
+            }
+        } catch(e) {}
+    }
+    
+    function f(n) { return new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(n); }
+    loadSettings();
+    setup();
+</script>
+</body>
+</html>
