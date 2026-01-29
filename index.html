@@ -1055,7 +1055,7 @@
                         let isFed = (key === 'fed');
                         let base = (key=='city'||key=='dues') ? totalGross : taxG; 
                         if(isFed) base = taxG; 
-                        if((settingsMap[key] || isFed) && aV !== undefined && Math.abs(dlt) > 0.02 && base > 0) { 
+                        if((settingsMap[key] || isFed) && aV !== undefined && Math.abs(dlt) > 0.01 && base > 0) { 
                             btn.classList.add('show'); btn.innerText = "↺ RATE";
                             btn.onclick = function() { requestRateUpdate(deductionLabels[key], aV, base, (isFed ? 'fedTaxRate' : settingsMap[key]), deductionLabels[key]); }; 
                         } else { btn.classList.remove('show'); } 
