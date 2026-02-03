@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PayCheck Ledger V3.5</title>
+    <title>PayCheck Ledger V3.5.1</title>
     <style>
         :root { --bg: #000000; --app-bg: #000000; --card: #1e1e1e; --text: #e0e0e0; --border: #333; --row: #2a2a2a; --accent: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252; --warning: #ffb300; --gold: #ffd700; --est-yellow: #ffeb3b; --hol-work: #7b1fa2; --hol-off: #4a148c; --vacation: #ff6f00; }
         * { box-sizing: border-box; }
@@ -473,18 +473,36 @@
         let minutes = parseInt(minsPart) || 0;
         return hours + (minutes / 60);
     }
-     function calcLoanStatus(loanKey, checkDate, amount) {
+     /* V3.5.1 SMART LOAN LOGIC */
+    function calcLoanStatus(loanKey, checkDate, amount) {
         let prefix = (loanKey === 'l1') ? 'l1' : 'l2';
         let total = parseInt(document.getElementById(prefix+'-total').value) || 0;
         let finalDateStr = document.getElementById(prefix+'-date').value;
-        if (total === 0 || !finalDateStr) return { paid: 0, total: 0, rem: 0, bal: 0 };
+        if (total === 0 || !finalDateStr) return { paid: 0, total: 0, rem: 0, bal: 0, txt: "" };
+        
         let finalDate = new Date(finalDateStr);
         let diffTime = finalDate - checkDate;
         let periodsLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 14)); 
         if(periodsLeft < 0) periodsLeft = 0;
         let currentPay = total - periodsLeft + 1;
         if(currentPay > total) currentPay = total;
-        return { paid: currentPay, total: total, rem: periodsLeft, bal: periodsLeft * amount };
+
+        /* SMART TIME FORMATTING */
+        let txt = "";
+        let years = Math.floor(periodsLeft / 26);
+        let remWeeks = periodsLeft % 26;
+
+        if (years > 0) {
+             let months = Math.floor(remWeeks / 2.16); 
+             txt = `[${currentPay}/${total} • ${years}y & ${months}m]`;
+        } else {
+             let months = Math.floor(periodsLeft / 2); // Rule of 2
+             let remChks = periodsLeft % 2;
+             if (months > 0) txt = `[${currentPay}/${total} • ${months}m & ${remChks}chk]`;
+             else txt = `[${currentPay}/${total} • ${periodsLeft} checks left]`;
+        }
+
+        return { paid: currentPay, total: total, rem: periodsLeft, bal: periodsLeft * amount, txt: txt };
     }
 
     function showGhost(el) {
@@ -655,7 +673,7 @@
         });
         document.getElementById('header-ytd-label').innerText = "EST. GROSS YTD";
        document.getElementById('header-ytd-gross').innerText = f(totalEstGrossVal);
-        autoScroll(); // V3.5 Trigger Scroll
+        autoScroll(); // V3.5.1 Trigger Scroll
     }
 
     /* V3.3.2 HEADER TOGGLE LOGIC */
@@ -769,6 +787,7 @@
         return html;
     }
 
+   /* V3.5.1 UI RENDERER (With DQ Checkbox) */
     function renderCalculator(pStart) {
         const container = document.getElementById('calculator-content'); container.innerHTML = "";
         let r5 = document.getElementById('rateL5').value, r4 = document.getElementById('rateL4').value, r3 = document.getElementById('rateL3').value, r2 = document.getElementById('rateL2').value, r1 = document.getElementById('rateL1').value;
@@ -786,7 +805,10 @@
                 let isSun = (day === 'Sun'), dateNum = cur.getDate();
                 let curDateStr = cur.toISOString().split('T')[0];
                 let isHol = isUnionHoliday(curDateStr);
+                
+                // V3.5.1: Add DQ Checkbox (Hidden on Sunday)
                 let holHTML = isSun ? '' : `<label class="cb-label hol"><input type="checkbox" id="hol-${w}-${i}" onchange="calc()">HOL</label>`;
+                let dqHTML = isSun ? '' : `<label class="cb-label ro" style="border-color:#ff5252; color:#ff5252; margin-left:2px;"><input type="checkbox" id="dq-${w}-${i}" onchange="calc()">DQ</label>`;
                 
                 container.innerHTML += `
                 <div class="day-card" id="card-${w}-${i}" data-date="${cur.toISOString()}" data-ref-section="Day Card" data-ref-selector=".day-card">
@@ -808,6 +830,7 @@
                             <label class="cb-label xtra"><input type="checkbox" id="extra-${w}-${i}" onchange="calc()">XTRA</label>
                             <label class="cb-label call"><input type="checkbox" id="call-${w}-${i}" onchange="calc()">CALL</label>
                             ${holHTML}
+                            ${dqHTML}
                             <label class="cb-label ro"><input type="checkbox" id="ro-${w}-${i}" onchange="toggleRO(${w},${i})">RO</label>
                             ${isSun?`<label class="cb-label vac"><input type="checkbox" id="vw-${w}" onchange="toggleVW(${w})">VW</label>`:''}
                             <label class="cb-label vac"><input type="checkbox" id="vd-${w}-${i}" onchange="calc()">VD</label>
@@ -834,6 +857,7 @@
     
    
 
+    /* V3.5.1 LOGIC ENGINE (Smart Activation & Hybrid DQ) */
     function calc() {
         try {
             updateVacationRateUI();
@@ -847,7 +871,6 @@
             let isDesShiftWorker = document.getElementById('shift-worker-toggle').checked;
             let prevW2 = parseFloat(document.getElementById('prevW2').value) || 0;
             let vacHourly = Math.max(bidRate, (prevW2 * 0.02) / 40);
-            let sLen = 12; 
             
             for(let w=1; w<=2; w++) {
                 for(let d=0; d<7; d++) {
@@ -856,70 +879,66 @@
                     let inputVal = document.getElementById('time-'+w+'-'+d).value;
                     let timeHrs = parseTimeInput(inputVal); 
                     
-                    if (inputVal && !btn.classList.contains('active')) {
-                        btn.innerText = timeHrs.toFixed(2) + " HR";
-                        btn.classList.add('active'); 
-                    } else if (inputVal && btn.classList.contains('active')) {
-                        btn.innerText = timeHrs.toFixed(2) + " HR";
-                    } else if (!inputVal && btn.classList.contains('active') && btn.innerText === "12 HR") {
-                        // Keep 12 HR
-                    } else if (!inputVal) {
-                        btn.classList.remove('active');
-                        btn.innerText = "12 HR";
-                    }
-
-                    let isBtn = btn.classList.contains('active');
                     let roCheck = document.getElementById(`ro-${w}-${d}`);
                     let xtraCheck = document.getElementById(`extra-${w}-${d}`);
-                    let vacCheck = document.getElementById(`vd-${w}-${d}`);
                     let holCheck = document.getElementById(`hol-${w}-${d}`);
+                    let dqCheck = document.getElementById(`dq-${w}-${d}`); // V3.5.1
                     
-                    if(!card) continue;
-                    
-                    let hasWork = false;
-                    if (timeHrs > 0) { hasWork = true; }
-                    else if (isBtn && !inputVal) { hasWork = true; timeHrs = 12; } 
-
                     let ro = roCheck.checked;
                     let xtra = xtraCheck ? xtraCheck.checked : false; 
-                    let isVac = vacCheck ? vacCheck.checked : false;
                     let isHol = holCheck ? holCheck.checked : false;
+
+                    /* V3.5.1 SMART ACTIVATION (One-Step Shot) */
+                    // If XTRA or HOL checked, and NO hours exist, Auto-Fill 12
+                    let hasWork = false;
+                    if (timeHrs > 0) { 
+                        hasWork = true; 
+                    } else if (btn.classList.contains('active') && !inputVal) { 
+                        hasWork = true; timeHrs = 12; 
+                    } else if ((xtra || isHol) && !ro && !inputVal && !btn.classList.contains('active')) {
+                        // AUTO-TRIGGER 12HR
+                        hasWork = true; timeHrs = 12; 
+                        btn.classList.add('active'); btn.innerText = "12 HR";
+                    }
+
+                    if (!hasWork) {
+                        btn.classList.remove('active'); btn.innerText = "12 HR";
+                    }
+
+                    // ... (Standard Logic Continues) ...
+                    let vacCheck = document.getElementById(`vd-${w}-${d}`);
+                    let isVac = vacCheck ? vacCheck.checked : false;
                     let dateStr = card.getAttribute('data-date');
                     let extra = false; 
                     
-                 /* V3.4.1 SINGLE LOGIC ENGINE */
                     // 1. Reset Clean Slate
                     card.className = 'day-card'; 
-                    btn.className = 'btn-12'; 
+                    btn.classList.remove('btn-green', 'btn-purple'); 
                     let sysHolName = isUnionHoliday(dateStr.split('T')[0]);
 
-                    // 2. Set Card Border/Background (CSS handles the color)
+                    // 2. Set Card Border/Background
                     if (isHol || sysHolName) { card.classList.add('status-hol'); } 
                     else if (xtra) { card.classList.add('status-xtra'); } 
                     else if (isVac || vacationDates.includes(dateStr.split('T')[0])) { card.classList.add('status-vac'); } 
                     else if (ro) { card.classList.add('ro-active'); }
 
-                    // 3. Set Button Colors (Only if active)
+                    // 3. Set Button Colors
                     if (hasWork) {
-                        btn.classList.add('active'); // Turn it on
-                        
-                        if (isHol || sysHolName) { 
-                            btn.classList.add('btn-purple'); // Paint Purple
-                        } else if (xtra) { 
-                            btn.classList.add('btn-green'); // Paint Green
-                        } else {
-                            // Regular Day
-                            if (!isVac) card.classList.add('status-worked'); 
-                        }
+                        btn.classList.add('active'); 
+                        if (isHol || sysHolName) { btn.classList.add('btn-purple'); } 
+                        else if (xtra) { btn.classList.add('btn-green'); } 
+                        else { if (!isVac) card.classList.add('status-worked'); }
                     }
                     
-                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, extra: extra, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs });
+                    // Map Data (Includes RO for lookback)
+                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, extra: extra, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked) });
                 }
             }
             if (dayMap.length === 0) return;
 
             let GT = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0, vbC:0 };
             
+            // VACATION WEEK RESET LOGIC
             for(let w=1; w<=2; w++) {
                 let isFullWeekOrange = true;
                 let startIdx = (w-1)*7;
@@ -939,29 +958,40 @@
                 }
             }
 
-            /* V3.4.2 HOLIDAY LOOP FIX */
+            /* V3.5.1 HOLIDAY HYBRID LOOP */
             for (let i = 0; i < 14; i++) {
                 let dayObj = dayMap[i];
                 let card = document.getElementById(`card-${dayObj.w}-${dayObj.d}`);
                 let holCheck = document.getElementById(`hol-${dayObj.w}-${dayObj.d}`);
                 let sysHolName = isUnionHoliday(dayObj.date.toISOString().split('T')[0]);
                 
-                // Clear old holiday styles
                 card.classList.remove('hol-worked', 'hol-unworked');
-                
-                // Check if it's a holiday (System OR Manual Checkbox)
                 let isHoliday = (sysHolName !== null) || (holCheck && holCheck.checked);
                 
                 if (isHoliday) { 
                     if (dayObj.hasWork) { 
                         card.classList.add('hol-worked'); 
-                        // REMOVED: if(holCheck) holCheck.checked = true; (This fixed the stuck box)
                     } else { 
                         if(!dayObj.ro) { 
-                            card.classList.add('hol-unworked'); 
-                            // REMOVED: if(holCheck) holCheck.checked = true; (This fixed the stuck box)
-                            GT.uhC += (bidRate * 8); 
-                            GT.uhH += 8; 
+                            /* V3.5.1 AUTO-DQ LOGIC */
+                            let disqualified = false;
+                            
+                            // 1. Check Manual DQ
+                            if (dayObj.dq) disqualified = true;
+
+                            // 2. Check Auto DQ (Look Behind and Ahead for RO on Scheduled Days)
+                            if (!disqualified) {
+                                let prev = (i > 0) ? dayMap[i-1] : null;
+                                let next = (i < 13) ? dayMap[i+1] : null;
+                                if (prev && prev.isScheduled && prev.ro) disqualified = true;
+                                if (next && next.isScheduled && next.ro) disqualified = true;
+                            }
+
+                            if (!disqualified) {
+                                card.classList.add('hol-unworked'); 
+                                GT.uhC += (bidRate * 8); 
+                                GT.uhH += 8; 
+                            }
                         } 
                     } 
                 }
@@ -1059,8 +1089,7 @@
 
                 let isOpen = (w===1) ? week1Open : week2Open;
                 let cls = isOpen ? 'show' : '';
-                /* V3.3.3 FIX: Use wk.incC * bPct instead of GT.incC for Week Summary */
-                let wkSummaryHTML = `<div class="week-summary-grid"><div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${wk.cH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.cH>0?wk.cC/wk.cH:workRate)}</div><div class="grid-amt">${f(wk.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${wk.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(wk.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${wk.hH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.hH>0?wk.hC/wk.hH:workRate*2.5)}</div><div class="grid-amt">${f(wk.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${wk.oH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.oH>0?wk.oC/wk.oH:workRate*1.5)}</div><div class="grid-amt">${f(wk.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${wk.sH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.sH>0?wk.sC/wk.sH:workRate*1.5)}</div><div class="grid-amt">${f(wk.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${wk.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(wk.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(vacBonus)}</div><div class="grid-label">Regular</div><div class="grid-hours">${wk.rH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.rH>0?wk.rC/wk.rH:workRate)}</div><div class="grid-amt">${f(wk.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${wkShiftHrs.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(wkShiftPay)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours">${(bPct*100).toFixed(1)}%</div><div class="grid-rate"></div><div class="grid-amt">${f(wk.incC*bPct)}</div><div class="grid-total"><span>Week ${w}</span><span>${f(wkGross + wkShiftPay)}</span></div></div>`;
+                let wkSummaryHTML = `<div class="week-summary-grid"><div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${wk.cH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.cH>0?wk.cC/wk.cH:workRate)}</div><div class="grid-amt">${f(wk.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${wk.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(wk.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${wk.hH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.hH>0?wk.hC/wk.hH:workRate*2.5)}</div><div class="grid-amt">${f(wk.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${wk.oH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.oH>0?wk.oC/wk.oH:workRate*1.5)}</div><div class="grid-amt">${f(wk.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${wk.sH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.sH>0?wk.sC/wk.sH:workRate*1.5)}</div><div class="grid-amt">${f(wk.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${wk.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(wk.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(vacBonus)}</div><div class="grid-label">Regular</div><div class="grid-hours">${wk.rH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.rH>0?wk.rC/wk.rH:workRate)}</div><div class="grid-amt">${f(wk.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(wkShiftPay)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours">${(bPct*100).toFixed(1)}%</div><div class="grid-rate"></div><div class="grid-amt">${f(wk.incC*bPct)}</div><div class="grid-total"><span>Week ${w}</span><span>${f(wkGross + wkShiftPay)}</span></div></div>`;
                 document.getElementById('sum-'+w).innerHTML = `<div class="wk-header" onclick="toggleWeek(${w})">WEEK ${w} SUMMARY (TAP TO TOGGLE)</div><div id="ws-${w}" class="wk-content ${cls}">${wkSummaryHTML}</div>`;
             }
 
@@ -1100,7 +1129,12 @@
                     if(key === 'l1' || key === 'l2') {
                         let chkDt = new Date(periods[currentPeriodId-1].end); 
                         let stat = calcLoanStatus(key, chkDt, used);
-                        if(stat.total > 0) { document.getElementById('detail-'+key).innerText = `[Pay ${stat.paid}/${stat.total} • ${stat.rem} Left • Bal ${f(stat.bal)}]`; } else { document.getElementById('detail-'+key).innerText = ""; }
+                        if(stat.total > 0) { 
+                            /* V3.5.1 SMART LOAN DISPLAY */
+                            document.getElementById('detail-'+key).innerText = stat.txt; 
+                        } else { 
+                            document.getElementById('detail-'+key).innerText = ""; 
+                        }
                     }
                     let btn = document.getElementById('action-'+key); 
                     if(key === 'k') {
