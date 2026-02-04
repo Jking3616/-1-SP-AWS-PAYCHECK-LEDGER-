@@ -3,34 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PayCheck Ledger V3.5.3</title>
+    <title>#1 SP AWS Paycheck Ledger V3.6.2 (Gold Ticket)</title>
     <style>
-        :root { --bg: #000000; --app-bg: #000000; --card: #1e1e1e; --text: #e0e0e0; --border: #333; --row: #2a2a2a; --accent: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252; --warning: #ffb300; --gold: #ffd700; --est-yellow: #ffeb3b; --hol-work: #7b1fa2; --hol-off: #4a148c; --vacation: #ff6f00; }
+        :root { --bg: #000000; --app-bg: #000000; --card: #1e1e1e; --text: #e0e0e0; --border: #333; --row: #2a2a2a; --accent: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252; --warning: #ffb300; --gold: #ffd700; --est-yellow: #ffeb3b; --hol-work: #7b1fa2; --hol-off: #4a148c; --vacation: #ff6f00; --electric: #2979ff; }
         * { box-sizing: border-box; }
-        
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; display: flex; justify-content: center; min-height: 100vh; }
-        
-        /* GPR: HIDE INPUT SPINNERS */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-
-        /* V3.3 CONTAINER */
         .desktop-container { width: 100%; max-width: 950px; background: var(--app-bg); min-height: 100vh; border-left: 1px solid #222; border-right: 1px solid #222; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(255,255,255,0.05); }
-
-        /* VIEWS - Increased Padding to Prevent Bunching */
         #dashboard-view { display: block; padding: 130px 10px 40px 10px; }
-        
-        /* FIXED: YTD Container Vertical Stack */
         #ytd-container { display: none; flex-direction: column; gap: 15px; padding: 0px 10px 80px 10px; }
-        
         #calculator-view { display: none; padding-top: 80px; padding-bottom: 50px; background: var(--app-bg); z-index: 2000; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; }
         #settings-view { display: none; padding: 90px 15px; background: var(--app-bg); z-index: 2000; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; }
         #vacation-view { display: none; padding: 90px 15px; background: var(--app-bg); z-index: 2000; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; } 
-
-        /* MAIN HEADER (Pinned & Centered) */
         .dash-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 950px; background: rgba(18, 18, 18, 0.98); z-index: 1000; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s; }
-        .dash-header.hidden { display: none; } /* JS Helper */
-        
+        .dash-header.hidden { display: none; }
         .header-wrapper { width: 100%; }
         .header-top { display: flex; justify-content: space-between; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; }
         .dash-stats { font-size: 10px; color: var(--dim); text-align: right; margin-right: 15px; }
@@ -39,8 +26,6 @@
         .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--dim); font-weight: 700; font-size: 11px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; letter-spacing: 0.5px; }
         .tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); background: rgba(77, 173, 255, 0.05); }
         .settings-btn { background: var(--row); color: var(--accent); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 16px; cursor: pointer; }
-
-        /* SUB-VIEW NAV BARS (Calculator/Settings) */
         .nav-bar { position: fixed; top: 0; width: 100%; max-width: 950px; height: 60px; background: rgba(18, 18, 18, 0.98); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 10px; z-index: 2001; box-sizing: border-box; justify-content: center; }
         .nav-wrapper { width: 100%; display: flex; align-items: center; }
         .back-btn { background: transparent; border: none; color: var(--dim); font-size: 24px; padding: 0 15px; cursor: pointer; }
@@ -48,8 +33,6 @@
         .pt-main { font-weight: 800; font-size: 14px; color: var(--text); display: block; text-transform: uppercase; letter-spacing: 1px; }
         .pt-sub { font-size: 10px; color: var(--accent); display: block; font-family: monospace; }
         .save-btn { color: var(--success); background: transparent; border: none; font-weight: 900; font-size: 14px; padding: 10px 20px; cursor: pointer; letter-spacing: 1px; }
-
-        /* DASHBOARD CARDS */
         .pay-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; padding: 12px; display: grid; grid-template-columns: 45px 1fr auto; align-items: center; transition: 0.1s; cursor: pointer; }
         .pay-card:hover { transform: scale(1.01); background: #252525; }
         .pay-card.verified { border-left: 4px solid var(--success); }
@@ -68,58 +51,50 @@
         .period-range { font-size: 11px; color: #888; font-family: monospace; }
         .deposit-badge { font-size: 10px; color: #00e676; font-weight: bold; background: rgba(0, 230, 118, 0.1); padding: 2px 6px; border-radius: 4px; width: fit-content; margin-top: 2px; border: 1px solid rgba(0, 230, 118, 0.3); }
         .card-total { font-size: 14px; font-weight: 700; color: var(--dim); text-align: right; font-family: monospace; }
-
-        /* DAY CARD */
-        /* V3.5.1 HYBRID THEME (Brighter BG) */
         .day-card { display: flex; background: var(--card); margin: 0 10px 6px 10px; border-radius: 8px; border: 1px solid #333; overflow: hidden; min-height: 55px; transition: 0.2s; position:relative; }
-        
-        /* STATUS STATES */
         .day-card.status-worked { border-color: var(--electric); background: var(--card); }
         .day-card.status-worked .day-label-col { background: var(--electric); border-right: 1px solid var(--electric); }
         .day-card.status-worked .day-name-part { color: #fff; }
-
         .day-card.status-xtra { border-color: var(--success); background: var(--card); }
         .day-card.status-xtra .day-label-col { background: var(--success); border-right: 1px solid var(--success); }
         .day-card.status-xtra .day-name-part { color: #fff; }
-
         .day-card.status-hol { border-color: var(--hol-work); background: var(--card); }
         .day-card.status-hol .day-label-col { background: var(--hol-work); border-right: 1px solid var(--hol-work); }
         .day-card.status-hol .day-name-part { color: #fff; }
-
         .day-card.status-vac { border-color: var(--vacation); background: rgba(255, 111, 0, 0.1); }
         .day-card.status-vac .day-label-col { background: var(--vacation); border-right: 1px solid var(--vacation); }
         .day-card.status-vac .day-name-part { color: #000; }
-
-        /* UNWORKED STATE (Stealth) */
+        .day-card.hol-unworked { border: 2px solid var(--hol-off); box-shadow: 0 0 5px rgba(123, 31, 162, 0.4); }
+        .day-card.hol-unworked .day-label-col { background: var(--hol-off); border-right: 1px solid var(--hol-off); }
+        .day-card.hol-unworked .day-name-part { color: #fff; }
         .day-label-col { width: 30px; background: #1a1a1a; display: flex; flex-direction: column; transition: 0.2s; flex-shrink: 0; border-right: 1px solid #333; }
         .day-name-part { flex: 2; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; transform: rotate(180deg); text-transform: uppercase; font-size: 10px; font-weight: 900; color: #444; letter-spacing: 1px; }
         .day-date-part { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #666; border-top: 1px solid #222; background: #111; padding: 4px 0; }
-        
         .day-content { flex: 1; padding: 6px; display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
         .dc-left { display: flex; flex-direction: column; gap: 3px; flex-grow: 1; max-width: 220px; }
-
-        /* BUTTONS */
         .time-row { display: flex; align-items: center; gap: 4px; }
         .btn-12 { width: 60px; height: 36px; border: 1px solid #333; border-radius: 4px; background: var(--row); color: #444; font-weight: bold; font-size: 11px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
-        
-       /* V3.5.1 BUTTON COLORS (REFINED) */
-        /* Standard Worked Day = Electric Blue */
         .btn-12.active { background: #2979ff !important; color: white !important; border: 1px solid #2979ff !important; box-shadow: 0 0 10px rgba(41, 121, 255, 0.4); }
-        
-        /* Extra Shift = Solid Green */
         .btn-12.btn-green { background: #00c853 !important; color: white !important; border: 1px solid #00c853 !important; box-shadow: 0 0 8px rgba(0, 200, 83, 0.4); }
-        
-        /* Holiday = Solid Purple */
         .btn-12.btn-purple { background: #7b1fa2 !important; color: white !important; border: 1px solid #fff !important; box-shadow: 0 0 8px rgba(123, 31, 162, 0.4); }
-        
         .v3-input { background: #000; color: #fff; border: 1.5px solid var(--accent); border-radius: 4px; height: 36px; width: 70px; text-align: center; font-family: monospace; font-size: 12px; font-weight: 700; outline: none; }
         .v3-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.3); }
         
-        .move-up-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; }
+        /* NEW: Extras Drawer Styling */
+        .move-up-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .move-up-btn.glow-blue { border-color: var(--electric); color: var(--electric); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 5px rgba(41, 121, 255, 0.3); }
+        .move-up-btn.glow-gold { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+        
         .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 4px; width: 100%; }
         .extra-rate-select.show { display: block; }
-        .move-up-zone { display: none; padding-top: 4px; grid-template-columns: 1fr 1fr; gap: 4px; }
+        
+        /* UPDATED: Extras Drawer Layout (3 Columns) */
+        .move-up-zone { display: none; padding-top: 4px; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 4px; }
         .move-up-zone.show { display: grid; }
+        
+        /* NEW: Ticket Checkbox */
+        .mt-label { display: flex; align-items: center; justify-content: center; gap:3px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: var(--gold); font-size: 9px; font-weight: 800; cursor: pointer; user-select: none; }
+        .mt-label input { width: 10px; height: 10px; accent-color: var(--gold); margin: 0; }
         
         .dc-right { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-start; align-content: flex-start; justify-content: flex-end; max-width: 250px; }
         .cb-label { display: flex; align-items: center; gap: 3px; background: #222; padding: 4px 6px; border-radius: 4px; border: 1px solid #333; font-size: 9px; font-weight: 700; color: #bbb; cursor: pointer; user-select: none; }
@@ -130,7 +105,6 @@
         .cb-label.hol { border-color: #ba68c8; color: #ba68c8; }
         .cb-label.ro { border-color: var(--danger); color: var(--danger); }
         .cb-label.vac { border-color: var(--warning); color: var(--warning); }
-
         .week-summary-grid, .total-summary-grid { display: grid; grid-template-columns: 1.3fr 0.7fr 0.9fr 1.0fr; gap: 2px; padding: 12px; background: var(--row); border-radius: 10px; margin: 0 10px 15px 10px; border: 1px solid var(--border); font-size: 0.75em; align-items: center; }
         .total-summary-grid { background: #1a1a1a; border: 2px solid var(--accent); margin-bottom: 25px; margin-top: 15px; }
         .grid-label { text-align: left; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
@@ -138,11 +112,9 @@
         .grid-rate { text-align: right; color: #90caf9; font-family: monospace; letter-spacing: -0.5px; } 
         .grid-amt { text-align: right; font-family: monospace; font-weight: bold; }
         .grid-total { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 5px; margin-top: 5px; display: flex; justify-content: space-between; font-weight: bold; color: var(--accent); font-size: 1.4em; }
-        
         .wk-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #333; margin: 15px 10px 0 10px; border-radius: 8px 8px 0 0; cursor: pointer; color: var(--accent); font-weight: 800; font-size: 11px; letter-spacing: 1px; }
         .wk-content { display: none; }
         .wk-content.show { display: block; }
-        
         .deduction-list { margin: 10px; display: flex; flex-direction: column; gap: 15px; }
         .deduction-line { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-bottom: 4px; min-height: 28px; }
         .d-label { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; color: var(--text); flex: 1; }
@@ -162,7 +134,6 @@
         .total-box { background: var(--accent); color: white; padding: 18px; border-radius: 12px; text-align: center; margin: 10px; }
         .net-box { border: 2.5px solid var(--success); background: transparent; color: var(--success); transition: 0.3s; }
         .net-box.verified { border-color: var(--success); color: var(--success); background: rgba(0, 200, 83, 0.05); box-shadow: 0 0 15px rgba(0, 200, 83, 0.1); }
-        
         .stub-box { background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box; }
         .stub-header { font-size: 11px; color: var(--accent); font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 8px; text-transform: uppercase; }
         .earnings-grid, .deduct-grid { display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
@@ -173,7 +144,6 @@
         .dg-detail { flex: 2; text-align: center; font-size: 10px; color: var(--warning); font-family: monospace; }
         .eg-total-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--dim); margin-top: 8px; padding-top: 8px; font-weight: 900; color: var(--gold); }
         .stub-net-line { display: flex; justify-content: space-between; background: #000; border: 1px solid var(--success); padding: 15px; border-radius: 6px; font-size: 18px; font-weight: 900; color: var(--success); margin-top: 10px; }
-        
         .pref-card { background: var(--row); padding: 18px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; }
         .pref-title { font-size: 0.7em; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; margin: 0; }
         .input-label { font-size: 11px; color: var(--dim); margin-bottom: 4px; display: block; }
@@ -188,7 +158,6 @@
         .apply-btn { background: #333; color: white; border: none; padding: 6px; font-size: 10px; border-radius: 4px; cursor: pointer; }
         .reset-btn { width: 100%; background: #2a0000; border: 1px solid var(--danger); color: var(--danger); padding: 15px; font-weight: 900; margin-top: 30px; border-radius: 8px; }
         .year-selector { background: transparent; color: var(--accent); font-size: 18px; font-weight: 900; border: none; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; padding: 0; margin: 0; }
-        
         .vac-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .vac-title { font-size: 20px; font-weight: 900; color: var(--vacation); }
         .vac-month-block { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--row); }
@@ -201,7 +170,6 @@
         .cal-day { aspect-ratio: 1; background: var(--card); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #fff; border: 1px solid #333; cursor: pointer; }
         .cal-day.empty { background: transparent; border: none; }
         .cal-day.vacation-selected { background: var(--vacation); color: #000; border-color: var(--gold); box-shadow: 0 0 5px rgba(255, 111, 0, 0.5); }
-        
         .loan-cal-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:4000; justify-content:center; align-items:center; }
         .loan-cal-modal.open { display:flex; }
         .loan-cal-content { background:#1e1e1e; width:300px; border:1px solid #444; border-radius:12px; padding:15px; box-shadow:0 0 20px rgba(0,0,0,0.8); }
@@ -216,7 +184,6 @@
         .lc-day.empty { background:transparent; border:none; cursor:default; }
         .lc-day.today { border:1px solid var(--accent); color:var(--accent); }
         .lc-day.selected { background:var(--accent); color:#000; font-weight:bold; }
-
         #sunday-modal, #sm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 3000; justify-content: center; align-items: center; }
         .modal-content { background: #1e1e1e; padding: 20px; border-radius: 10px; width: 85%; max-height: 85vh; overflow-y: auto; text-align: center; border: 2px solid var(--accent); }
         .modal-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
@@ -227,6 +194,22 @@
         .tab-sub.active { background: var(--accent); color: white; border-color: var(--accent); }
         .contract-view-content { display: none; }
         .contract-view-content.show { display: block; }
+        
+        /* NEW: Extras Drawer Styling */
+        .move-up-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .move-up-btn.glow-blue { border-color: var(--electric); color: var(--electric); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 5px rgba(41, 121, 255, 0.3); }
+        .move-up-btn.glow-gold { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+        
+        .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 4px; width: 100%; }
+        .extra-rate-select.show { display: block; }
+        
+        /* UPDATED: Extras Drawer Layout (3 Columns) */
+        .move-up-zone { display: none; padding-top: 4px; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 4px; }
+        .move-up-zone.show { display: grid; }
+        
+        /* NEW: Ticket Checkbox */
+        .mt-label { display: flex; align-items: center; justify-content: center; gap:3px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: var(--gold); font-size: 9px; font-weight: 800; cursor: pointer; user-select: none; }
+        .mt-label input { width: 10px; height: 10px; accent-color: var(--gold); margin: 0; }
     </style>
 </head>
 <body>
@@ -236,14 +219,14 @@
             <div class="header-top">
                 <div>
                     <select id="year-selector" class="year-selector" onchange="switchYear(this.value)">
-    <option value="2026" selected>2026 LEDGER</option>
-    <option value="2027">2027 LEDGER</option>
-    <option value="2028">2028 LEDGER</option>
-    <option value="2029">2029 LEDGER</option>
-    <option value="2030">2030 LEDGER</option>
-    <option value="2031">2031 LEDGER</option>
-</select>
-                    <div style="font-size:10px; color:#888;">PAYCHECK LEDGER V3.5.3 (Gold) </div>
+                        <option value="2026" selected>2026 LEDGER</option>
+                        <option value="2027">2027 LEDGER</option>
+                        <option value="2028">2028 LEDGER</option>
+                        <option value="2029">2029 LEDGER</option>
+                        <option value="2030">2030 LEDGER</option>
+                        <option value="2031">2031 LEDGER</option>
+                    </select>
+                    <div style="font-size:10px; color:#888;">#1 SP AWS PAYCHECK LEDGER V3.6.2</div>
                 </div>
                 <div style="display:flex; align-items:center;">
                     <div class="dash-stats"><div id="header-ytd-label">EST. GROSS YTD</div><div class="ytd-val" id="header-ytd-gross">$0.00</div></div>
@@ -273,7 +256,6 @@
         <div class="stub-box"><div class="stub-header">PRE-TAX DEDUCTIONS</div><div class="deduct-grid" id="ytd-pretax-rows"></div></div>
         <div class="stub-box"><div class="stub-header">TAXES</div><div class="deduct-grid" id="ytd-tax-rows"></div></div>
         <div class="stub-box"><div class="stub-header">POST-TAX DEDUCTIONS</div><div class="deduct-grid" id="ytd-posttax-rows"></div></div>
-        
         <div class="stub-box" style="border: 1px dashed var(--gold);">
             <div class="stub-header" style="color:var(--gold); border-bottom:none;">NON-TAXABLE STATS</div>
             <div class="deduct-grid">
@@ -283,7 +265,6 @@
                 </div>
             </div>
         </div>
-
         <div class="stub-net-line"><span>NET PAY YTD</span><span id="ytd-net-pay-display">$0.00</span></div>
         <div style="text-align:center; margin-top:20px; font-size:11px; color:#666;">VERIFIED CHECKS: <span id="ytd-check-count" style="color:#fff; font-weight:bold;">0</span></div>
     </div>
@@ -296,15 +277,12 @@
                 <button class="save-btn" onclick="saveAndClose()">SAVE</button>
             </div>
         </div>
-        
         <div id="calculator-content"></div>
         <div id="total-ledger-content"></div>
-
         <div class="total-box">
             <div style="font-size: 0.7em; letter-spacing:1px;">14-DAY GROSS</div>
             <div id="grossDisplay" style="font-size: 28px; font-weight: 800;">$0.00</div>
         </div>
-
         <div class="audit-header">
             <span style="color:#ff5252; font-weight:900; font-size:12px; letter-spacing:1px;">AUDIT MODE</span>
             <div style="display:flex; align-items:center;">
@@ -313,9 +291,7 @@
                 <input type="checkbox" id="audit-toggle" class="audit-toggle" onchange="toggleAuditMode()">
             </div>
         </div>
-        
         <div class="deduction-list" id="summary-deductions"></div>
-        
         <div class="total-box net-box" id="net-box-container">
             <div style="font-size: 0.7em; letter-spacing:1px;">NET TAKE HOME</div>
             <div id="netDisplay" style="font-size: 32px; font-weight: 800;">$0.00</div>
@@ -330,22 +306,23 @@
                 <button class="close-set-btn" onclick="closeSettings()">DONE</button>
             </div>
         </div>
-        
         <div class="pref-card">
             <div class="collapsible-header" onclick="toggleCard('card1')"><span id="arrow-card1" class="arrow">▶</span><span class="pref-title">1. USER CONFIGURATION</span></div>
             <div id="card1" class="collapsible-content">
                 <span class="input-label" style="margin-top:5px; color:#4dadff;">Assigned Crew Pattern</span>
                 <select id="crew-select"><option value="D">Crew D</option><option value="B">Crew B</option><option value="C">Crew C</option><option value="A">Crew A</option></select>
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; margin-top:10px;"><input type="checkbox" id="shift-worker-toggle" style="width:20px; height:20px; margin:0;" onchange="calc(); saveSettings();"><span style="font-size:13px; font-weight:bold;">Designated Shift Worker (+$0.25/hr)</span></div>
                 <span class="input-label">Bidded Job Class</span><select id="biddedRate" onchange="calc(); saveSettings();"><option value="5">Level 5</option><option value="4">Level 4</option><option value="3">Level 3</option><option value="2">Level 2</option><option value="1">Level 1</option></select>
                 <div class="collapsible-header" onclick="document.getElementById('sched-box').classList.toggle('show');"><span class="arrow">▶</span><span class="pref-title" style="color:var(--dim); font-size:0.65em;">DIFFERENT SCHEDULED JOB CLASS?</span></div><div id="sched-box" class="collapsible-content"><span class="input-label">Scheduled Job Class</span><select id="scheduledRate" onchange="calc(); saveSettings();"><option value="0">Same as Bidded</option><option value="5">Level 5</option><option value="4">Level 4</option><option value="3">Level 3</option><option value="2">Level 2</option><option value="1">Level 1</option></select></div>
+                
+                <span class="input-label" style="margin-top:10px; color:var(--gold);">Meal Ticket Value ($)</span>
+                <input type="number" id="mt-val" placeholder="16.17" oninput="saveSettings()">
+
                 <span class="input-label" style="margin-top:10px;">Prior Year W2 (Minus Profit Sharing)</span><input type="number" id="prevW2" placeholder="0.00" oninput="calc(); saveSettings();"><div id="vacRateDisplay" style="text-align:right; font-family:monospace; color:#ffeb3b;">Vacation Rate: $0.00 / hr</div>
-                <span class="input-label" style="margin-top:10px;">Default Incentive Forecast (%)</span><input type="number" id="defInc" placeholder="Min % if you feel confident. Default = 0" oninput="saveSettings();">
+                <span class="input-label" style="margin-top:10px;">Default Incentive Forecast (%)</span><input type="number" id="defInc" placeholder="Can be set to a min % if you feel confident. Default = 0" oninput="saveSettings();">
                 <span class="input-label" style="margin-top:10px;">Hire Date (Continuous Service)</span><div style="display:grid; grid-template-columns: 2fr 1fr; gap:5px;"><input type="date" id="hire-date" onchange="saveSettings()"><input type="number" id="hire-year-manual" placeholder="Year" oninput="quickSetYear(this.value)"></div>
                 <button class="apply-btn" style="width:100%; font-size:14px; background:linear-gradient(135deg, #ff6f00, #e65100); color:white; font-weight:900; margin-top:10px;" onclick="openVacationView()">OPEN VACATION PLANNER</button>
             </div>
         </div>
-
         <div class="pref-card">
             <div class="collapsible-header" onclick="toggleCard('card2')"><span id="arrow-card2" class="arrow">▶</span><span class="pref-title">2. FUTURE PAY RATES</span></div>
             <div id="card2" class="collapsible-content">
@@ -368,13 +345,9 @@
                 </div>
             </div>
         </div>
-
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card3')"><span id="arrow-card3" class="arrow">▶</span><span class="pref-title">3. SMART RATE FINDER</span></div><div id="card3" class="collapsible-content"><div id="rate-tool" class="rate-tool-box" style="display:block; margin-bottom:5px;"><div style="font-size:10px; color:#888; margin-bottom:5px;">Calculates rate based on Gross minus 401k Setting</div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><input type="number" id="rt-gross" placeholder="Total Gross"><input type="number" id="rt-tax" placeholder="Tax Paid ($)"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;"><button onclick="calcRateResult()" style="background:var(--accent); color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold; font-size:12px;">CALCULATE</button><span id="rt-result" style="font-weight:800; color:var(--success); font-size:18px;">0.000%</span></div><div class="rt-actions" style="grid-template-columns: 1fr 1fr;"><button class="apply-btn" onclick="applyRate('fedTaxRate')">SET FED RATE</button><button class="apply-btn" onclick="applyRate('stateTaxRate')">SET STATE RATE</button></div></div></div></div>
-
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card4')"><span id="arrow-card4" class="arrow">▶</span><span class="pref-title">4. TAX & RETIREMENT (%)</span></div><div id="card4" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">401k %</span><input type="number" id="kRate" oninput="calc(); saveSettings();"></div><div><span class="input-label">Fed W/H %</span><input type="number" id="fedTaxRate" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Ohio W/H %</span><input type="number" id="stateTaxRate" value="2.75" oninput="calc(); saveSettings();"></div><div><span class="input-label">City %</span><input type="number" id="cityTaxRate" value="2.5" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">FICA EE %</span><input type="number" id="ficaRate" value="6.2" oninput="calc(); saveSettings();"></div><div><span class="input-label">Fed MWT EE %</span><input type="number" id="medRate" value="1.45" oninput="calc(); saveSettings();"></div></div></div></div>
-
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card5')"><span id="arrow-card5" class="arrow">▶</span><span class="pref-title">5. FLAT DEDUCTIONS ($)</span></div><div id="card5" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">USW Dues %</span><input type="number" id="duesRate" value="1.45" oninput="calc(); saveSettings();"></div><div><span class="input-label">Charity</span><input type="number" id="charity" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">OPTL Life EE</span><input type="number" id="lifeEE" oninput="calc(); saveSettings();"></div><div><span class="input-label">Addl Optional</span><input type="number" id="addOpt" oninput="calc(); saveSettings();"></div></div>
-        
         <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px;">
             <span style="color:var(--accent); font-size:11px; font-weight:bold;">LOAN 1 TRACKER</span>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
@@ -392,7 +365,6 @@
             </div>
         </div>
         <div style="display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px;"><div><span class="input-label" style="color:var(--danger)">Garnishments ($)</span><input type="number" id="garnishment" oninput="calc(); saveSettings();"></div></div></div></div>
-        
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card6')"><span id="arrow-card6" class="arrow">▶</span><span class="pref-title">6. NET PAY DISTRIBUTION</span></div><div id="card6" class="collapsible-content">
             <div style="margin-bottom:5px; color:#888; font-size:10px;">Deduct amounts to see actual Deposit.</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
@@ -401,16 +373,12 @@
                 <div><span class="input-label">Sec. Acct 3</span><input type="number" id="dist3" placeholder="0.00" oninput="saveSettings(); renderDashboard();"></div>
             </div>
         </div></div>
-
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card7')"><span id="arrow-card7" class="arrow">▶</span><span class="pref-title">7. ADVANCED DUES LOGIC</span></div><div id="card7" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Cap Threshold ($)</span><input type="number" id="duesCapThresh" value="5500" oninput="calc(); saveSettings();"></div><div><span class="input-label">Hourly Rate ($)</span><input type="number" id="duesHrRate" value="0.02" oninput="calc(); saveSettings();"></div><div><span class="input-label">Cap Factor</span><input type="number" id="duesCapFactor" value="1.2923" oninput="calc(); saveSettings();"></div></div></div></div>
         <button class="reset-btn" onclick="resetCheckData()">RESET CHECK DATA</button><button class="reset-btn" style="margin-top:10px; border-color:var(--dim); color:var(--dim);" onclick="resetSettings()">RESET APP SETTINGS</button>
     </div>
-
     <div id="vacation-view"><div class="nav-bar"><div class="nav-wrapper"><button class="back-btn" onclick="closeVacationView()">❮</button><div class="period-title"><span class="pt-main">VACATION PLANNER</span></div><button class="close-set-btn" onclick="closeVacationView()">DONE</button></div></div><div class="summary-box"><div class="sum-row" style="border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px;"><span>Split Weeks (WAD):</span><select id="wad-select" style="width:100px; background:#222; border:none; color:var(--warning); font-weight:bold; padding:2px;" onchange="saveSettings(); updateVacSummary();"><option value="0">0 Weeks</option><option value="1">1 Week</option><option value="2">2 Weeks</option></select></div><div class="sum-row"><span>Entitlement:</span><span id="vac-total-ent" class="sum-val">0 Weeks</span></div><div class="sum-row" style="color:var(--success)"><span>Weeks Left:</span><span id="vac-blocks-left" class="sum-val">0</span></div><div class="sum-row" style="color:var(--warning)"><span>Days Left:</span><span id="vac-days-left" class="sum-val">0</span></div></div><div id="calendar-container"></div></div>
-    
     <div id="sunday-modal"><div class="modal-content"><h3 style="color:#fff; margin-top:0;">Sunday Selection</h3><p style="color:#888; font-size:12px;">Do you want to book the full week or just this day?</p><button class="modal-btn" style="background:var(--vacation); color:#fff;" onclick="confirmSunday(true)">BOOK FULL WEEK</button><button class="modal-btn" style="background:#333; color:#fff;" onclick="confirmSunday(false)">BOOK SINGLE DAY</button><button class="modal-btn" style="background:transparent; color:#888; border:1px solid #444;" onclick="document.getElementById('sunday-modal').style.display='none'">CANCEL</button></div></div>
     <div id="sm-modal"><div class="modal-content"><h3 style="color:#fff; margin-top:0;">Safety Meeting</h3><p style="color:#888; font-size:12px;">Does this meeting fall on a Holiday (2.5x)?</p><button class="modal-btn" style="background:var(--vacation); color:#fff;" onclick="confirmSM(true)">YES (2.5x HOLIDAY)</button><button class="modal-btn" style="background:#333; color:#fff;" onclick="confirmSM(false)">NO (1.5x STANDARD)</button></div></div>
-    
     <div id="loan-cal-modal" class="loan-cal-modal">
         <div class="loan-cal-content">
             <div class="loan-cal-header">
@@ -429,11 +397,7 @@
     </div>
 </div>
 <script>
-    /* PAYCHECK LEDGER V3.3.3 GOLD ENGINE - FINAL */
-    
     window.onerror = function(msg, url, line) { console.error("App Error: " + msg + " @ " + line); return false; };
-
-    /* --- INJECT GHOST STYLES (Programmatic CSS) --- */
     const ghostStyle = document.createElement('style');
     ghostStyle.innerHTML = `
         .ghost-bubble { position: absolute; background: #ff6f00; color: #000; padding: 6px 10px; border-radius: 6px; font-weight: 900; font-size: 11px; z-index: 9999; pointer-events: none; border: 2px solid #fff; box-shadow: 0 0 15px rgba(255, 111, 0, 0.5); animation: floatUp 3s forwards; }
@@ -444,7 +408,7 @@
     let currentPeriodId = null, ledgerData = {}, days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], auditData = {}, lastCalcBreakdown = {}, lastCalcHours = {}, lastUsedDeductions = {}; 
     const catMap = { pretax: ['k'], taxes: ['fed','fica','med','state','city'], posttax: ['dues','duesHr','life','addOpt','charity','l1','l2','garn'] };
     const deductionLabels = { k:"401k Contribution", fed:"Fed W/H", state:"Ohio W/H", city:"ClvlndCityW/H", fica:"FICA EE", med:"Fed MWT EE (medicare)", dues:"USW Dues", duesHr:"USW Dues Hrs", life:"OPTL Life EE", addOpt:"Addl Optional", charity:"Charity", l1:"401K BU Loan 1", l2:"401K BU Loan 2", garn:"Garnishments" }, settingsMap = { state:'stateTaxRate', city:'cityTaxRate', dues:'duesRate', fed:'fedTaxRate' };
-    const earningsOrder = ["CallOut", "HolidayUH", "HolidayWk", "Overtime", "Sunday", "Vacation", "VacaBonus", "Regular", "ShiftDiff", "Incentive"];
+    const earningsOrder = ["MealTicket", "CallOut", "HolidayUH", "HolidayWk", "Overtime", "Sunday", "Vacation", "VacaBonus", "Regular", "ShiftDiff", "Incentive"];
     
     let currentYear = 2026;
     let vacationDates = []; 
@@ -455,7 +419,6 @@
     let week1Open = false;
     let week2Open = false;
 
-    /* --- CORE HELPERS --- */
     function f(n) { return new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(n); }
     function fR(n) { return '$' + (n || 0).toFixed(4); }
     function r2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
@@ -468,40 +431,32 @@
         let valStr = val.toString();
         if (!valStr.includes('.')) return parseFloat(val);
         let parts = valStr.split('.');
-        let hours = parseInt(parts[0]) || 0;
-        let minsPart = parts[1];
-        let minutes = parseInt(minsPart) || 0;
-        return hours + (minutes / 60);
+        return (parseInt(parts[0])||0) + ((parseInt(parts[1])||0)/60);
     }
-     /* V3.5.1 SMART LOAN LOGIC */
+
     function calcLoanStatus(loanKey, checkDate, amount) {
         let prefix = (loanKey === 'l1') ? 'l1' : 'l2';
         let total = parseInt(document.getElementById(prefix+'-total').value) || 0;
         let finalDateStr = document.getElementById(prefix+'-date').value;
         if (total === 0 || !finalDateStr) return { paid: 0, total: 0, rem: 0, bal: 0, txt: "" };
-        
         let finalDate = new Date(finalDateStr);
         let diffTime = finalDate - checkDate;
         let periodsLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 14)); 
         if(periodsLeft < 0) periodsLeft = 0;
         let currentPay = total - periodsLeft + 1;
         if(currentPay > total) currentPay = total;
-
-        /* SMART TIME FORMATTING */
         let txt = "";
         let years = Math.floor(periodsLeft / 26);
         let remWeeks = periodsLeft % 26;
-
         if (years > 0) {
              let months = Math.floor(remWeeks / 2.16); 
              txt = `[${currentPay}/${total} • ${years}y & ${months}m]`;
         } else {
-             let months = Math.floor(periodsLeft / 2); // Rule of 2
+             let months = Math.floor(periodsLeft / 2);
              let remChks = periodsLeft % 2;
              if (months > 0) txt = `[${currentPay}/${total} • ${months}m & ${remChks}chk]`;
              else txt = `[${currentPay}/${total} • ${periodsLeft} checks left]`;
         }
-
         return { paid: currentPay, total: total, rem: periodsLeft, bal: periodsLeft * amount, txt: txt };
     }
 
@@ -549,27 +504,16 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active');
         document.getElementById('check-list-container').style.display = 'none'; document.getElementById('ytd-container').style.display = 'none';
         document.getElementById('settings-view').style.display = 'none'; document.getElementById('vacation-view').style.display = 'none';
-        
-        if(t === 'checks') { 
-            document.getElementById('dashboard-view').style.display = 'block';
-            document.getElementById('check-list-container').style.display = 'block'; 
-            renderDashboard(); 
-        }
-        else if(t === 'ytd') { 
-            document.getElementById('dashboard-view').style.display = 'block'; 
-            document.getElementById('ytd-container').style.display = 'flex'; 
-            renderYTD(); 
-        }
+        if(t === 'checks') { document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('check-list-container').style.display = 'block'; renderDashboard(); }
+        else if(t === 'ytd') { document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('ytd-container').style.display = 'flex'; renderYTD(); }
     }
 
     function resetSingleCheck(id, event) {
         event.stopPropagation(); 
         if(confirm(`⚠️ RESET Check #${id}?\n\nThis will clear all manual edits for this period.`)) {
-            delete ledgerData[id];
-            delete auditData[id];
+            delete ledgerData[id]; delete auditData[id];
             localStorage.setItem(`ledger_${currentYear}_final`, JSON.stringify(ledgerData));
-            renderDashboard();
-            renderYTD(); 
+            renderDashboard(); renderYTD(); 
         }
     }
 
@@ -579,9 +523,7 @@
             let yEarn = {}, yHrs = {}; 
             earningsOrder.forEach(k => { yEarn[k] = 0; yHrs[k] = 0; });
             let yDed = { k:0, fed:0, state:0, city:0, fica:0, med:0, dues:0, duesHr:0, life:0, addOpt:0, charity:0, l1:0, l2:0, garn:0 };
-            let incentivePctSum = 0;
-            let totalWorkedHours = 0; 
-            let yOTPrem = 0; 
+            let incentivePctSum = 0; let totalWorkedHours = 0; let yOTPrem = 0; 
 
             for (const [id, data] of Object.entries(ledgerData)) { 
                 if (data.inputs && data.inputs['verified-toggle']) { 
@@ -592,9 +534,7 @@
                             if (k === 'Incentive') incentivePctSum += (data.breakdownHrs[k] || 0); 
                             else if(yHrs.hasOwnProperty(k)) {
                                 yHrs[k] += (data.breakdownHrs[k] || 0);
-                                if (['Regular','Overtime','Sunday','CallOut','HolidayWk','Vacation'].includes(k)) {
-                                    totalWorkedHours += (data.breakdownHrs[k] || 0);
-                                }
+                                if (['Regular','Overtime','Sunday','CallOut','HolidayWk','Vacation'].includes(k)) { totalWorkedHours += (data.breakdownHrs[k] || 0); }
                             }
                         }
                     }
@@ -602,14 +542,9 @@
                     if(data.otPremium) yOTPrem += data.otPremium;
                 } 
             }
-            
-            document.getElementById('header-ytd-label').innerText = "GROSS YTD";
-            document.getElementById('header-ytd-gross').innerText = f(yG);
-
-            document.getElementById('ytd-net-pay-display').innerText = f(yN);
-            document.getElementById('ytd-check-count').innerText = cnt;
-            document.getElementById('ytd-total-hours').innerText = totalWorkedHours.toFixed(2);
-            document.getElementById('ytd-total-gross').innerText = f(yG);
+            document.getElementById('header-ytd-label').innerText = "GROSS YTD"; document.getElementById('header-ytd-gross').innerText = f(yG);
+            document.getElementById('ytd-net-pay-display').innerText = f(yN); document.getElementById('ytd-check-count').innerText = cnt;
+            document.getElementById('ytd-total-hours').innerText = totalWorkedHours.toFixed(2); document.getElementById('ytd-total-gross').innerText = f(yG);
             document.getElementById('ytd-ot-premium').innerText = f(yOTPrem); 
 
             let eHTML = ""; 
@@ -617,18 +552,17 @@
                 let displayMid = "--";
                 if (k === 'Incentive') { if (cnt > 0) displayMid = (incentivePctSum / (cnt * 2)).toFixed(2) + "%"; } 
                 else if (k === 'VacaBonus') { displayMid = yHrs[k].toFixed(0); } 
+                else if (k === 'MealTicket') { displayMid = yHrs[k].toFixed(0); }
                 else { displayMid = yHrs[k].toFixed(2); } 
                 eHTML += `<div class="eg-row"><span class="eg-label">${k}</span><span class="eg-units">${displayMid}</span><span class="eg-amt">${f(yEarn[k])}</span></div>`;
             });
             document.getElementById('ytd-earnings-rows').innerHTML = eHTML;
-            
             let taxHTML = "", preHTML = "", postHTML = "";
             catMap.taxes.forEach(k => { taxHTML += `<div class="dg-row"><span class="dg-label">${deductionLabels[k]}</span><div class="dg-detail"></div><span class="dg-amt">${f(yDed[k])}</span></div>`; });
             catMap.pretax.forEach(k => { preHTML += `<div class="dg-row"><span class="dg-label">${deductionLabels[k]}</span><div class="dg-detail"></div><span class="dg-amt">${f(yDed[k])}</span></div>`; });
             catMap.posttax.forEach(k => {
                 let detail = "";
                 if(k === 'l1' || k === 'l2') {
-                    // FIX: Grab the actual amount from settings
                     let amt = parseFloat(document.getElementById(k === 'l1' ? 'loan1' : 'loan2').value) || 0;
                     let stat = calcLoanStatus(k, new Date(), amt); 
                     if(stat.total > 0) { detail = `[Rem Bal: ${f(stat.bal)}]`; }
@@ -644,7 +578,7 @@
     function renderDashboard() {
         const container = document.getElementById('check-list-container'); container.innerHTML = '';
         let today = new Date().toISOString().split('T')[0];
-        let totalEstGrossVal = 0; // V3.3 Sums Verified AND Estimated
+        let totalEstGrossVal = 0; 
         let d1 = parseFloat(document.getElementById('dist1').value)||0;
         let d2 = parseFloat(document.getElementById('dist2').value)||0;
         let d3 = parseFloat(document.getElementById('dist3').value)||0;
@@ -654,9 +588,7 @@
             let data = ledgerData[p.id];
             let isDone = (data && data.net > 0);
             let isVerified = (data && data.inputs && data.inputs['verified-toggle']);
-            
             if(data && data.gross) { totalEstGrossVal += data.gross; }
-            
             let val = isDone ? f(data.net) : "--";
             let statusClass = "";
             if (isVerified) statusClass = "verified"; else if (isDone) statusClass = "estimated"; else if (today >= p.start && today <= p.end) statusClass = "current";
@@ -673,10 +605,9 @@
         });
         document.getElementById('header-ytd-label').innerText = "EST. GROSS YTD";
        document.getElementById('header-ytd-gross').innerText = f(totalEstGrossVal);
-        autoScroll(); // V3.5.1 Trigger Scroll
+        autoScroll(); 
     }
 
-    /* V3.3.2 HEADER TOGGLE LOGIC */
     function toggleMainHeader(show) {
         let h = document.getElementById('main-dash-header');
         if(show) h.style.display = 'flex'; else h.style.display = 'none';
@@ -715,59 +646,71 @@
         renderDashboard(); 
     }
 
-    function openSettings() { 
-        toggleMainHeader(false);
-        document.getElementById('dashboard-view').style.display='none'; document.getElementById('settings-view').style.display='block'; window.scrollTo(0,0); 
-    }
-    
-    function closeSettings() { 
-        document.getElementById('settings-view').style.display='none'; 
-        toggleMainHeader(true);
-        document.getElementById('dashboard-view').style.display='block'; 
-    }
+    function openSettings() { toggleMainHeader(false); document.getElementById('dashboard-view').style.display='none'; document.getElementById('settings-view').style.display='block'; window.scrollTo(0,0); }
+    function closeSettings() { document.getElementById('settings-view').style.display='none'; toggleMainHeader(true); document.getElementById('dashboard-view').style.display='block'; }
 
     function applySchedule(periodStart) { 
         try { 
-            document.querySelectorAll('#calculator-view input').forEach(el => { if(el.type=='checkbox') el.checked=false; else if(el.type!='hidden' && !el.classList.contains('d-input')) el.value=""; }); 
+            document.querySelectorAll('#calculator-view input').forEach(el => { 
+                if(el.type=='checkbox' && el.id !== 'audit-toggle' && el.id !== 'verified-toggle') el.checked=false; 
+                else if(el.type!='hidden' && !el.classList.contains('d-input')) el.value=""; 
+            }); 
             document.querySelectorAll('.v3-input').forEach(s => s.value = "");
+            
+            let sLen = 12;
             document.querySelectorAll('.btn-12').forEach(b => { b.classList.remove('active'); b.innerText = "12 HR"; }); 
-            document.querySelectorAll('.day-card').forEach(c => { c.classList.remove('ro-active'); c.classList.remove('status-hol'); c.classList.remove('status-xtra'); c.classList.remove('status-vac'); c.classList.remove('hol-worked'); c.classList.remove('hol-unworked'); }); 
+            
+            document.querySelectorAll('.day-card').forEach(c => { 
+                c.classList.remove('ro-active'); c.classList.remove('status-hol'); c.classList.remove('status-xtra'); 
+                c.classList.remove('status-vac'); c.classList.remove('hol-worked'); c.classList.remove('hol-unworked'); 
+            }); 
             
             let defInc = document.getElementById('defInc').value;
-            if(defInc) { document.getElementById('bonus-1').value = defInc; document.getElementById('bonus-2').value = defInc; }
+            if(defInc) { 
+                let b1 = document.getElementById('bonus-1'); if(b1) b1.value = defInc; 
+                let b2 = document.getElementById('bonus-2'); if(b2) b2.value = defInc; 
+            }
 
-            let crew = document.getElementById('crew-select').value;
+            let crewEl = document.getElementById('crew-select');
+            let crew = crewEl ? crewEl.value : 'A';
             let offset = (crew === 'B') ? 2 : (crew === 'C') ? 4 : (crew === 'A') ? 6 : 0;
             let diffTime = Math.abs(periodStart - scheduleAnchor);
             let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             let weeksPassed = Math.floor(diffDays / 7); 
-            let adjustedWeek = (weeksPassed + offset) % 8;
-            let p1 = cyclePatterns[adjustedWeek], p2 = cyclePatterns[(adjustedWeek + 1) % 8];
-            p1.forEach(d => { let b = document.getElementById(`btn-1-${d}`); if(b) b.classList.add('active'); }); 
-            p2.forEach(d => { let b = document.getElementById(`btn-2-${d}`); if(b) b.classList.add('active'); }); 
+            let adjustedWeek = ((weeksPassed + offset) % 8 + 8) % 8;
+            let p1 = cyclePatterns[adjustedWeek];
+            let p2 = cyclePatterns[(adjustedWeek + 1) % 8];
+            if (p1) p1.forEach(function(d) { let b = document.getElementById('btn-1-' + d); if(b) b.classList.add('active'); }); 
+            if (p2) p2.forEach(function(d) { let b = document.getElementById('btn-2-' + d); if(b) b.classList.add('active'); }); 
+
             for(let w=1; w<=2; w++) {
                 for(let d=0; d<7; d++) { 
-                    let card = document.getElementById(`card-${w}-${d}`);
+                    let card = document.getElementById('card-' + w + '-' + d);
                     let dateStr = card.getAttribute('data-date').split('T')[0];
-                    let worked = document.getElementById(`btn-${w}-${d}`).classList.contains('active'); 
+                    let btn = document.getElementById('btn-' + w + '-' + d);
+                    let worked = btn.classList.contains('active'); 
                     if(vacationDates.includes(dateStr)) {
-                        document.getElementById(`vd-${w}-${d}`).checked = true;
-                        document.getElementById(`btn-${w}-${d}`).classList.remove('active');
+                        let vd = document.getElementById('vd-' + w + '-' + d);
+                        if(vd) vd.checked = true;
+                        btn.classList.remove('active');
                         card.classList.add('status-vac');
                     } else if(isUnionHoliday(dateStr) && worked) { 
-                        let hc = document.getElementById(`hol-${w}-${d}`); if(hc) hc.checked = true; 
+                        let hc = document.getElementById('hol-' + w + '-' + d); 
+                        if(hc) hc.checked = true; 
                         card.classList.add('status-hol');
                     } 
                 }
             }
             calc(); 
-        } catch(e) { console.error(e); } 
+        } catch(e) { console.error("Schedule Error: " + e.message); alert("Schedule Error: " + e.message); } 
     }
     
     function forceSchedule() { if(confirm("Force reload schedule?")) { applySchedule(periods[currentPeriodId-1].startDateObj); } }
-    
+
     function renderDeductionRows() { 
-        const container = document.getElementById('summary-deductions'); container.innerHTML = ""; 
+        const container = document.getElementById('summary-deductions'); 
+        if(!container) return;
+        container.innerHTML = ""; 
         const groups = [ { key: 'pretax', title: 'PRE-TAX DEDUCTIONS' }, { key: 'taxes', title: 'TAXES' }, { key: 'posttax', title: 'POST-TAX DEDUCTIONS' } ]; 
         groups.forEach(group => { 
             let box = document.createElement('div'); box.className = 'stub-box'; 
@@ -780,21 +723,26 @@
             container.appendChild(box); 
         }); 
     }
-    
-    function generateOptions(count) {
-        let html = '';
-        for(let i=0; i<count; i++) html += `<option value="${i}">${i}</option>`;
-        return html;
+
+    function handleManualInput(w, d) {
+        let btn = document.getElementById(`btn-${w}-${d}`);
+        let val = document.getElementById(`time-${w}-${d}`).value;
+        if (val !== "") {
+            btn.classList.add('active'); 
+            btn.innerText = val + " HR"; 
+        } else {
+            btn.classList.remove('active'); 
+            btn.innerText = "12 HR";
+        }
+        calc(); 
     }
 
-   /* V3.5.2 UI RENDERER (Nuclear Triggers) */
     function renderCalculator(pStart) {
         const container = document.getElementById('calculator-content'); container.innerHTML = "";
         let r5 = document.getElementById('rateL5').value, r4 = document.getElementById('rateL4').value, r3 = document.getElementById('rateL3').value, r2 = document.getElementById('rateL2').value, r1 = document.getElementById('rateL1').value;
         let optHTML = `<option value="0">OT Rate</option><option value="5">L5 - $${r5}</option><option value="4">L4 - $${r4}</option><option value="3">L3 - $${r3}</option><option value="2">L2 - $${r2}</option><option value="1">L1 - $${r1}</option>`;
         let stepHTML = `<option value="0">Rate</option><option value="5">L5</option><option value="4">L4</option><option value="3">L3</option><option value="2">L2</option><option value="1">L1</option>`;
-        let sLen = 12; 
-        let btnText = sLen + " HR";
+        let btnText = "12 HR";
         let cur = new Date(pStart);
 
         container.innerHTML += `<div style="text-align:center; font-size:10px; color:#ffb300; margin-bottom:5px; font-weight:bold;">MANUAL ENTRY FORMAT: HH.MM (Decimal = Minutes)</div>`;
@@ -806,9 +754,9 @@
                 let curDateStr = cur.toISOString().split('T')[0];
                 let isHol = isUnionHoliday(curDateStr);
                 
-                // V3.5.2: Triggers updated to toggleSmart()
                 let holHTML = isSun ? '' : `<label class="cb-label hol"><input type="checkbox" id="hol-${w}-${i}" onchange="toggleSmart(${w},${i})">HOL</label>`;
-                let dqHTML = isSun ? '' : `<label class="cb-label ro" style="border-color:#ff5252; color:#ff5252; margin-left:2px;"><input type="checkbox" id="dq-${w}-${i}" onchange="calc()">DQ</label>`;
+                let dqHTML = '';
+                if (isHol) { dqHTML = `<label class="cb-label ro" style="border-color:#ff5252; color:#ff5252; margin-left:2px;"><input type="checkbox" id="dq-${w}-${i}" onchange="calc()">DQ</label>`; }
                 
                 container.innerHTML += `
                 <div class="day-card" id="card-${w}-${i}" data-date="${cur.toISOString()}" data-ref-section="Day Card" data-ref-selector=".day-card">
@@ -817,13 +765,14 @@
                         <div class="dc-left">
                             <div class="time-row">
                                 <button class="btn-12" id="btn-${w}-${i}" onclick="toggle12(${w},${i})">${btnText}</button>
-                                <input type="number" class="v3-input" id="time-${w}-${i}" placeholder="0.00" oninput="calc()" onfocus="showGhost(this)">
+                                <input type="number" class="v3-input" id="time-${w}-${i}" placeholder="0.00" oninput="handleManualInput(${w},${i})" onfocus="showGhost(this)">
                                 <select id="extra-rate-${w}-${i}" class="extra-rate-select" onchange="calc()">${optHTML}</select>
                             </div>
-                            <button class="move-up-btn" id="toggle-${w}-${i}" onclick="toggleZone(${w},${i})">MOVE UP</button>
+                            <button class="move-up-btn" id="toggle-${w}-${i}" onclick="toggleZone(${w},${i})">MOVE UP / STAY OVER</button>
                             <div class="move-up-zone" id="zone-${w}-${i}">
                                 <input type="number" id="step-hrs-${w}-${i}" placeholder="Hrs" oninput="calc()">
                                 <select id="step-rate-${w}-${i}" onchange="calc()">${stepHTML}</select>
+                                <label class="mt-label"><input type="checkbox" id="mt-${w}-${i}" onchange="calc()"> TICKET</label>
                             </div>
                         </div>
                         <div class="dc-right">
@@ -855,9 +804,6 @@
         } catch(e) { console.log("Vacation UI Update skipped"); }
     }
     
-   
-
-    /* V3.5.2 NUCLEAR LOGIC HELPER */
     function toggleSmart(w, d) {
         let xtra = document.getElementById('extra-' + w + '-' + d).checked;
         let hol = document.getElementById('hol-' + w + '-' + d);
@@ -865,20 +811,18 @@
         let btn = document.getElementById('btn-' + w + '-' + d);
         let timeInput = document.getElementById('time-' + w + '-' + d);
 
-        // NUCLEAR LOGIC: If either is checked -> ON. If both unchecked -> OFF.
         if (xtra || isHol) {
             btn.classList.add('active');
             btn.innerText = "12 HR";
-            timeInput.value = ""; // Clear manual time to avoid conflicts
+            timeInput.value = ""; 
         } else {
             btn.classList.remove('active');
             btn.innerText = "12 HR";
             timeInput.value = "";
         }
-        calc(); // Run the math
+        calc(); 
     }
 
-   /* V3.5.3 LOGIC ENGINE (The "Hunter" Update) */
     function calc() {
         try {
             updateVacationRateUI();
@@ -889,9 +833,10 @@
             let bidRate = getRate(bidLvl);
             let schedLvl = document.getElementById('scheduledRate').value;
             let workRate = (schedLvl == 0) ? bidRate : getRate(schedLvl);
-            let isDesShiftWorker = document.getElementById('shift-worker-toggle').checked;
+            let isDesShiftWorker = true; 
             let prevW2 = parseFloat(document.getElementById('prevW2').value) || 0;
             let vacHourly = Math.max(bidRate, (prevW2 * 0.02) / 40);
+            let mtVal = parseFloat(document.getElementById('mt-val').value) || 16.17;
             
             for(let w=1; w<=2; w++) {
                 for(let d=0; d<7; d++) {
@@ -904,6 +849,7 @@
                     let xtraCheck = document.getElementById(`extra-${w}-${d}`);
                     let holCheck = document.getElementById(`hol-${w}-${d}`);
                     let dqCheck = document.getElementById(`dq-${w}-${d}`); 
+                    let mtCheck = document.getElementById(`mt-${w}-${d}`); 
                     
                     let ro = roCheck.checked;
                     let xtra = xtraCheck ? xtraCheck.checked : false; 
@@ -913,22 +859,30 @@
                     let dateStr = card.getAttribute('data-date');
                     let extra = false; 
 
+                    let toggleBtn = document.getElementById(`toggle-${w}-${d}`);
+                    let stepH = document.getElementById(`step-hrs-${w}-${d}`).value;
+                    let stepR = document.getElementById(`step-rate-${w}-${d}`).value;
+                    toggleBtn.classList.remove('glow-gold', 'glow-blue');
+                    
+                    if(mtCheck && mtCheck.checked) {
+                        toggleBtn.classList.add('glow-gold');
+                    } else if (stepH !== "" || stepR !== "0") {
+                        toggleBtn.classList.add('glow-blue');
+                    }
+
                     let hasWork = false;
                     if (timeHrs > 0) { hasWork = true; }
                     else if (btn.classList.contains('active')) { hasWork = true; timeHrs = 12; }
                     
-                    // 1. Reset Clean Slate
                     card.className = 'day-card'; 
                     btn.classList.remove('btn-green', 'btn-purple'); 
                     let sysHolName = isUnionHoliday(dateStr.split('T')[0]);
 
-                    // 2. Set Card Border/Background
                     if (isHol || sysHolName) { card.classList.add('status-hol'); } 
                     else if (xtra) { card.classList.add('status-xtra'); } 
                     else if (isVac || vacationDates.includes(dateStr.split('T')[0])) { card.classList.add('status-vac'); } 
                     else if (ro) { card.classList.add('ro-active'); }
 
-                    // 3. Set Button Colors
                     if (hasWork) {
                         btn.classList.add('active'); 
                         if (isHol || sysHolName) { btn.classList.add('btn-purple'); } 
@@ -936,14 +890,13 @@
                         else { if (!isVac) card.classList.add('status-worked'); }
                     }
                     
-                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, extra: extra, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked) });
+                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, extra: extra, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked), mt: (mtCheck && mtCheck.checked) });
                 }
             }
             if (dayMap.length === 0) return;
 
-            let GT = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0, vbC:0 };
+            let GT = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0, vbC:0, mtH:0, mtC:0 };
             
-            // VACATION WEEK RESET LOGIC
             for(let w=1; w<=2; w++) {
                 let isFullWeekOrange = true;
                 let startIdx = (w-1)*7;
@@ -964,7 +917,6 @@
                 }
             }
 
-            /* V3.5.3 HOLIDAY HUNTING LOGIC */
             for (let i = 0; i < 14; i++) {
                 let dayObj = dayMap[i];
                 let card = document.getElementById(`card-${dayObj.w}-${dayObj.d}`);
@@ -980,30 +932,23 @@
                     } else { 
                         if(!dayObj.ro) { 
                             let disqualified = false;
-                            
-                            // 1. Manual DQ
                             if (dayObj.dq) disqualified = true;
-
-                            // 2. Auto DQ: HUNT BACKWARDS
                             if (!disqualified) {
                                 for (let b = i - 1; b >= 0; b--) {
                                     if (dayMap[b].isScheduled) {
                                         if (dayMap[b].ro) disqualified = true;
-                                        break; // Found the Last Scheduled Day, stop hunting
+                                        break; 
                                     }
                                 }
                             }
-
-                            // 3. Auto DQ: HUNT FORWARDS
                             if (!disqualified) {
                                 for (let f = i + 1; f < 14; f++) {
                                     if (dayMap[f].isScheduled) {
                                         if (dayMap[f].ro) disqualified = true;
-                                        break; // Found the Next Scheduled Day, stop hunting
+                                        break; 
                                     }
                                 }
                             }
-
                             if (!disqualified) {
                                 card.classList.add('hol-unworked'); 
                                 GT.uhC += (bidRate * 8); 
@@ -1018,12 +963,16 @@
             let sAmt = 0; 
 
             for (let w = 1; w <= 2; w++) {
-                let wk = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0 };
+                let wk = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0, mtH:0, mtC:0 };
                 let isVW = document.getElementById('vw-'+w)?.checked;
                 let bPct = (parseFloat(document.getElementById('bonus-'+w).value)||0) / 100;
                 let vacBonus = 0, buck = 0;
 
-                for(let i=(w-1)*7; i<(w*7); i++) { if(document.getElementById(`card-${dayMap[i].w}-${dayMap[i].d}`).classList.contains('hol-unworked')) { wk.uhH += 8; wk.uhC += (bidRate * 8); } }
+                for(let i=(w-1)*7; i<(w*7); i++) { 
+                    let dObj = dayMap[i];
+                    if(document.getElementById(`card-${dObj.w}-${dObj.d}`).classList.contains('hol-unworked')) { wk.uhH += 8; wk.uhC += (bidRate * 8); } 
+                    if(dObj.mt) { wk.mtH += 1; wk.mtC += mtVal; }
+                }
 
                 if(isVW) { 
                     wk.vC = vacHourly * 40; wk.vH = 40; 
@@ -1096,28 +1045,33 @@
                 let smPay = 0;
                 if(document.getElementById('sm-'+w)?.checked) { smPay = workRate * smRateMult; wk.incC += smPay; if(smRateMult === 2.5) { wk.hH += 1; wk.hC += smPay; } else { wk.oH += 1; wk.oC += smPay; } }
 
-                let wkGross = wk.rC+wk.vC+wk.oC+wk.sC+wk.hC+wk.uhC+wk.cC+vacBonus+(wk.incC*bPct); 
+                let wkGross = wk.rC+wk.vC+wk.oC+wk.sC+wk.hC+wk.uhC+wk.cC+vacBonus+(wk.incC*bPct) + wk.mtC; 
                 totalGross += wkGross; 
                 totalWorkHrs += (wk.rH + wk.oH + wk.sH + wk.hH + wk.cH); 
                 if(isDesShiftWorker) shiftHours += (wk.rH + wk.oH + wk.sH + wk.hH);
                 
                 GT.rH+=wk.rH; GT.rC+=wk.rC; GT.vH+=wk.vH; GT.vC+=wk.vC; GT.oH+=wk.oH; GT.oC+=wk.oC; GT.cH+=wk.cH; GT.cC+=wk.cC; GT.sH+=wk.sH; GT.sC+=wk.sC; GT.hH+=wk.hH; GT.hC+=wk.hC; GT.incC += (wk.incC * bPct); GT.vbC += vacBonus;
+                GT.mtH+=wk.mtH; GT.mtC+=wk.mtC;
 
                 let wkShiftHrs = (isDesShiftWorker) ? (wk.rH + wk.oH + wk.sH + wk.hH) : 0;
                 let wkShiftPay = wkShiftHrs * 0.25;
 
                 let isOpen = (w===1) ? week1Open : week2Open;
                 let cls = isOpen ? 'show' : '';
-                let wkSummaryHTML = `<div class="week-summary-grid"><div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${wk.cH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.cH>0?wk.cC/wk.cH:workRate)}</div><div class="grid-amt">${f(wk.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${wk.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(wk.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${wk.hH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.hH>0?wk.hC/wk.hH:workRate*2.5)}</div><div class="grid-amt">${f(wk.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${wk.oH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.oH>0?wk.oC/wk.oH:workRate*1.5)}</div><div class="grid-amt">${f(wk.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${wk.sH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.sH>0?wk.sC/wk.sH:workRate*1.5)}</div><div class="grid-amt">${f(wk.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${wk.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(GT.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.vbC)}</div><div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.rH>0?GT.rC/GT.rH:workRate)}</div><div class="grid-amt">${f(GT.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(sAmt)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.incC)}</div><div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div></div>`;
+                let wkSummaryHTML = `<div class="week-summary-grid">
+                <div class="grid-label" style="color:var(--gold)">Meal Ticket</div><div class="grid-hours">${wk.mtH}</div><div class="grid-rate"></div><div class="grid-amt">${f(wk.mtC)}</div>
+                <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${wk.cH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.cH>0?wk.cC/wk.cH:workRate)}</div><div class="grid-amt">${f(wk.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${wk.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(wk.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${wk.hH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.hH>0?wk.hC/wk.hH:workRate*2.5)}</div><div class="grid-amt">${f(wk.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${wk.oH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.oH>0?wk.oC/wk.oH:workRate*1.5)}</div><div class="grid-amt">${f(wk.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${wk.sH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.sH>0?wk.sC/wk.sH:workRate*1.5)}</div><div class="grid-amt">${f(wk.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${wk.vH.toFixed(2)}h</div><div class="grid-rate">${fR(vacHourly)}</div><div class="grid-amt">${f(wk.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(vacBonus)}</div><div class="grid-label">Regular</div><div class="grid-hours">${wk.rH.toFixed(2)}h</div><div class="grid-rate">${fR(wk.rH>0?wk.rC/wk.rH:workRate)}</div><div class="grid-amt">${f(wk.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${wkShiftHrs.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(wkShiftPay)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(wk.incC * bPct)}</div><div class="grid-total"><span>Week ${w} Total</span><span>${f(wkGross + wkShiftPay)}</span></div></div>`;
                 document.getElementById('sum-'+w).innerHTML = `<div class="wk-header" onclick="toggleWeek(${w})">WEEK ${w} SUMMARY (TAP TO TOGGLE)</div><div id="ws-${w}" class="wk-content ${cls}">${wkSummaryHTML}</div>`;
             }
 
             sAmt = (isDesShiftWorker) ? (shiftHours * 0.25) : 0; 
             totalGross += sAmt;
-            lastCalcBreakdown = { Regular: GT.rC, Vacation: GT.vC, Overtime: GT.oC, Sunday: GT.sC, CallOut: GT.cC, HolidayWk: GT.hC, HolidayUH: GT.uhC, ShiftDiff: sAmt, Incentive: GT.incC, VacaBonus: GT.vbC };
-            lastCalcHours = { Regular: GT.rH, Vacation: GT.vH, Overtime: GT.oH, Sunday: GT.sH, CallOut: GT.cH, HolidayWk: GT.hH, HolidayUH: GT.uhH, ShiftDiff: shiftHours, Incentive: (parseFloat(document.getElementById('bonus-1').value)||0) + (parseFloat(document.getElementById('bonus-2').value)||0), VacaBonus: (GT.vbC > 0 ? 1 : 0) };
+            lastCalcBreakdown = { Regular: GT.rC, Vacation: GT.vC, Overtime: GT.oC, Sunday: GT.sC, CallOut: GT.cC, HolidayWk: GT.hC, HolidayUH: GT.uhC, ShiftDiff: sAmt, Incentive: GT.incC, VacaBonus: GT.vbC, MealTicket: GT.mtC };
+            lastCalcHours = { Regular: GT.rH, Vacation: GT.vH, Overtime: GT.oH, Sunday: GT.sH, CallOut: GT.cH, HolidayWk: GT.hH, HolidayUH: GT.uhH, ShiftDiff: shiftHours, Incentive: (parseFloat(document.getElementById('bonus-1').value)||0) + (parseFloat(document.getElementById('bonus-2').value)||0), VacaBonus: (GT.vbC > 0 ? 1 : 0), MealTicket: GT.mtH };
 
-            document.getElementById('total-ledger-content').innerHTML = `<div class="total-summary-grid"><div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${GT.cH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.cH>0?GT.cC/GT.cH:workRate)}</div><div class="grid-amt">${f(GT.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${GT.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(GT.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${GT.hH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.hH>0?GT.hC/GT.hH:workRate*2.5)}</div><div class="grid-amt">${f(GT.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${GT.oH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.oH>0?GT.oC/GT.oH:workRate*1.5)}</div><div class="grid-amt">${f(GT.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${GT.sH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.sH>0?GT.sC/GT.sH:workRate*1.5)}</div><div class="grid-amt">${f(GT.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${GT.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(GT.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.vbC)}</div><div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.rH>0?GT.rC/GT.rH:workRate)}</div><div class="grid-amt">${f(GT.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(sAmt)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.incC)}</div><div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div></div>`;
+            document.getElementById('total-ledger-content').innerHTML = `<div class="total-summary-grid">
+            <div class="grid-label" style="color:var(--gold)">Meal Ticket</div><div class="grid-hours">${GT.mtH}</div><div class="grid-rate"></div><div class="grid-amt">${f(GT.mtC)}</div>
+            <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${GT.cH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.cH>0?GT.cC/GT.cH:workRate)}</div><div class="grid-amt">${f(GT.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${GT.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(GT.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${GT.hH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.hH>0?GT.hC/GT.hH:workRate*2.5)}</div><div class="grid-amt">${f(GT.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${GT.oH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.oH>0?GT.oC/GT.oH:workRate*1.5)}</div><div class="grid-amt">${f(GT.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${GT.sH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.sH>0?GT.sC/GT.sH:workRate*1.5)}</div><div class="grid-amt">${f(GT.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${GT.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(GT.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.vbC)}</div><div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.rH>0?GT.rC/GT.rH:workRate)}</div><div class="grid-amt">${f(GT.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(sAmt)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.incC)}</div><div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div></div>`;
             document.getElementById('grossDisplay').innerText = f(totalGross);
             
             let dR = parseFloat(document.getElementById('duesRate').value)||0;
@@ -1148,12 +1102,7 @@
                     if(key === 'l1' || key === 'l2') {
                         let chkDt = new Date(periods[currentPeriodId-1].end); 
                         let stat = calcLoanStatus(key, chkDt, used);
-                        if(stat.total > 0) { 
-                            /* V3.5.1 SMART LOAN DISPLAY */
-                            document.getElementById('detail-'+key).innerText = stat.txt; 
-                        } else { 
-                            document.getElementById('detail-'+key).innerText = ""; 
-                        }
+                        if(stat.total > 0) { document.getElementById('detail-'+key).innerText = stat.txt; } else { document.getElementById('detail-'+key).innerText = ""; }
                     }
                     let btn = document.getElementById('action-'+key); 
                     if(key === 'k') {
@@ -1206,19 +1155,13 @@
         let b=document.getElementById(`btn-${w}-${d}`); 
         let t=document.getElementById(`time-${w}-${d}`); 
         let c=document.getElementById(`card-${w}-${d}`); 
-        if(r.checked){
-            b.classList.remove('active');
-            t.value="";
-            c.classList.add('ro-active');
-        } else {
-            c.classList.remove('ro-active');
-        } 
+        if(r.checked){ b.classList.remove('active'); t.value=""; c.classList.add('ro-active'); } 
+        else { c.classList.remove('ro-active'); } 
         calc(); 
     }
 
     function getRate(l) { 
         if (currentPeriodId === null) return parseFloat(document.getElementById('rateL' + (l || 3)).value) || 0;
-
         let currentCheckDate = periods[currentPeriodId-1].startDateObj;
         let useContract = document.getElementById('enable-contract').checked;
         let cStart = document.getElementById('contract-start').value;
@@ -1258,13 +1201,8 @@
     function toggle12(w, d) { 
         let b = document.getElementById('btn-'+w+'-'+d);
         let t = document.getElementById('time-'+w+'-'+d);
-        if(b.classList.contains('active')) {
-            b.classList.remove('active'); b.innerText = "12 HR";
-            t.value = "";
-        } else {
-            b.classList.add('active'); b.innerText = "12 HR";
-            t.value = "";
-        }
+        if(b.classList.contains('active')) { b.classList.remove('active'); b.innerText = "12 HR"; t.value = ""; } 
+        else { b.classList.add('active'); b.innerText = "12 HR"; t.value = ""; }
         calc(); 
     }
 
@@ -1277,10 +1215,8 @@
     function toggleWeek(w) {
         let el = document.getElementById('ws-'+w);
         if(w===1) week1Open = !week1Open; else week2Open = !week2Open;
-        if(week1Open && w===1) el.classList.add('show');
-        else if(!week1Open && w===1) el.classList.remove('show');
-        if(week2Open && w===2) el.classList.add('show');
-        else if(!week2Open && w===2) el.classList.remove('show');
+        if(week1Open && w===1) el.classList.add('show'); else if(!week1Open && w===1) el.classList.remove('show');
+        if(week2Open && w===2) el.classList.add('show'); else if(!week2Open && w===2) el.classList.remove('show');
     }
 
     function switchContractTab(tab) {
@@ -1300,16 +1236,8 @@
     }
     function applyRate(targetId) { let res = document.getElementById('rt-result').innerText; if(res !== '0.000%') { document.getElementById(targetId).value = parseFloat(res).toFixed(4); calc(); saveSettings(); alert('Updated!'); } }
 
-    function openSettings() { 
-        toggleMainHeader(false);
-        document.getElementById('dashboard-view').style.display='none'; document.getElementById('settings-view').style.display='block'; window.scrollTo(0,0); 
-    }
-    
-    function closeSettings() { 
-        document.getElementById('settings-view').style.display='none'; 
-        toggleMainHeader(true);
-        document.getElementById('dashboard-view').style.display='block'; 
-    }
+    function openSettings() { toggleMainHeader(false); document.getElementById('dashboard-view').style.display='none'; document.getElementById('settings-view').style.display='block'; window.scrollTo(0,0); }
+    function closeSettings() { document.getElementById('settings-view').style.display='none'; toggleMainHeader(true); document.getElementById('dashboard-view').style.display='block'; }
 
     function triggerSM(w) {
         if(document.getElementById('sm-'+w).checked) {
@@ -1324,13 +1252,8 @@
     }
     function confirmSM(isHol) { document.getElementById('sm-modal').style.display = 'none'; document.getElementById('sm-'+smTargetWeek).setAttribute('data-rate', isHol ? '2.5' : '1.5'); calc(); }
 
-    function openVacationView() { 
-        toggleMainHeader(false);
-        document.getElementById('settings-view').style.display='none'; document.getElementById('vacation-view').style.display='block'; renderCalendar(); 
-    }
-    function closeVacationView() { 
-        document.getElementById('vacation-view').style.display='none'; document.getElementById('settings-view').style.display='block'; 
-    }
+    function openVacationView() { toggleMainHeader(false); document.getElementById('settings-view').style.display='none'; document.getElementById('vacation-view').style.display='block'; renderCalendar(); }
+    function closeVacationView() { document.getElementById('vacation-view').style.display='none'; document.getElementById('settings-view').style.display='block'; }
 
     function renderCalendar() {
         const cont = document.getElementById('calendar-container'); cont.innerHTML = '';
@@ -1393,12 +1316,9 @@
     function getEntitlement() {
         const hire = document.getElementById('hire-date').value;
         if (!hire) return 0;
-        
-        // V3.3 Jan 1st Unlock Rule: Calculate service as of DEC 31st of CURRENT YEAR
         const hireDate = new Date(hire);
-        const endOfYear = new Date(currentYear, 11, 31); // Dec 31
+        const endOfYear = new Date(currentYear, 11, 31); 
         const yrs = (endOfYear - hireDate)/(1000*60*60*24*365);
-        
         if(yrs>=30) return 6; if(yrs>=24) return 5; if(yrs>=15) return 4; if(yrs>=5) return 3; if(yrs>=1) return 2; return 1;
     }
 
@@ -1475,16 +1395,14 @@
             for (const [key, val] of Object.entries(data.inputs)) { let el = document.getElementById(key); if(el && key !== 'audit-toggle') { if(el.type === 'checkbox') el.checked = val; else if(el.classList.contains('btn-12') && val===true) el.classList.add('active'); else el.value = val; } }
             if(data.inputs['sm-1']) document.getElementById('sm-1').setAttribute('data-rate', data.inputs['sm-rate-1'] || '1.5');
             if(data.inputs['sm-2']) document.getElementById('sm-2').setAttribute('data-rate', data.inputs['sm-rate-2'] || '1.5');
-            for(let w=1; w<=2; w++) { days.forEach((d,i) => { if(parseFloat(document.getElementById(`step-hrs-${w}-${i}`).value)>0) document.getElementById(`zone-${w}-${i}`).classList.add('show'); if(document.getElementById(`ro-${w}-${i}`).checked) document.getElementById(`card-${w}-${i}`).classList.add('ro-active'); }); }
+            for(let w=1; w<=2; w++) { days.forEach((d,i) => { if(parseFloat(document.getElementById(`step-hrs-${w}-${i}`).value)>0 || parseFloat(document.getElementById(`step-rate-${w}-${i}`).value)>0 || document.getElementById(`mt-${w}-${i}`).checked) document.getElementById(`zone-${w}-${i}`).classList.add('show'); if(document.getElementById(`ro-${w}-${i}`).checked) document.getElementById(`card-${w}-${i}`).classList.add('ro-active'); }); }
         }
     }
     function resetCheckData() { if(confirm("Are you sure? This will DELETE all saved checks for "+currentYear)) { localStorage.removeItem(`ledger_${currentYear}_final`); location.reload(); } }
     function resetSettings() { if(confirm("Reset all settings?")) { localStorage.removeItem('app_settings_v30'); location.reload(); } }
 
-    /* --- V3.3 LOAN CALENDAR ENGINE --- */
     let lcCurrentDate = new Date();
     let lcTargetInputId = null;
-
     function openLoanCalendar(inputId) {
         lcTargetInputId = inputId;
         let existingVal = document.getElementById(inputId+'-date').value;
@@ -1496,11 +1414,7 @@
     function lcToggleYear() { let y = prompt("Enter Year:", lcCurrentDate.getFullYear()); if(y) { lcCurrentDate.setFullYear(parseInt(y)); lcRender(); } }
     function lcPrevMonth() { lcCurrentDate.setMonth(lcCurrentDate.getMonth()-1); lcRender(); }
     function lcNextMonth() { lcCurrentDate.setMonth(lcCurrentDate.getMonth()+1); lcRender(); }
-    function lcSelectDate(dStr) {
-        document.getElementById(lcTargetInputId+'-date').value = dStr;
-        saveSettings();
-        closeLoanCalendar();
-    }
+    function lcSelectDate(dStr) { document.getElementById(lcTargetInputId+'-date').value = dStr; saveSettings(); closeLoanCalendar(); }
     function lcRender() {
         const mNames = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
         document.getElementById('lc-year-btn').innerText = lcCurrentDate.getFullYear();
@@ -1508,16 +1422,12 @@
         const grid = document.getElementById('lc-grid-container');
         grid.innerHTML = "";
         ['S','M','T','W','T','F','S'].forEach(d => grid.innerHTML += `<div class="lc-day-head">${d}</div>`);
-        
         let y = lcCurrentDate.getFullYear(), m = lcCurrentDate.getMonth();
         let firstDay = new Date(y, m, 1).getDay();
         let daysInMonth = new Date(y, m+1, 0).getDate();
-        
         for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="lc-day empty"></div>`;
-        
         let todayStr = new Date().toISOString().split('T')[0];
         let selectedStr = document.getElementById(lcTargetInputId+'-date').value;
-
         for(let d=1; d<=daysInMonth; d++) {
             let dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             let cls = 'lc-day';
@@ -1527,28 +1437,16 @@
         }
     }
 
-    /* V3.5 AUTO-SCROLL ENGINE */
     function autoScroll() {
-        // Wait 100ms for the screen to paint, then slide
         setTimeout(() => {
             let cards = document.querySelectorAll('.pay-card');
             let target = null;
-            
-            // Find first NON-VERIFIED card
-            for(let c of cards) {
-                if(!c.classList.contains('verified')) { target = c; break; }
-            }
-            
-            // If we found one, scroll to it
+            for(let c of cards) { if(!c.classList.contains('verified')) { target = c; break; } }
             if(target) {
-                let headerOffset = 135; // Height of header + bit of breathing room
+                let headerOffset = 135; 
                 let elementPosition = target.getBoundingClientRect().top;
                 let offsetPosition = elementPosition + window.scrollY - headerOffset;
-                
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth"
-                });
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
             }
         }, 100);
     }
