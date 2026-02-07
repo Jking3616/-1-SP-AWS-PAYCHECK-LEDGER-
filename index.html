@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>#1 SP AWS Paycheck Ledger V3.6.2 (Gold Ticket)</title>
+    <title>#1 SP AWS Paycheck Ledger V3.6.4 (Auto-Pivot)</title>
     <style>
         :root { --bg: #000000; --app-bg: #000000; --card: #1e1e1e; --text: #e0e0e0; --border: #333; --row: #2a2a2a; --accent: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252; --warning: #ffb300; --gold: #ffd700; --est-yellow: #ffeb3b; --hol-work: #7b1fa2; --hol-off: #4a148c; --vacation: #ff6f00; --electric: #2979ff; }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; display: flex; justify-content: center; min-height: 100vh; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+        input::placeholder { color: #555; opacity: 1; }
         .desktop-container { width: 100%; max-width: 950px; background: var(--app-bg); min-height: 100vh; border-left: 1px solid #222; border-right: 1px solid #222; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(255,255,255,0.05); }
         #dashboard-view { display: block; padding: 130px 10px 40px 10px; }
         #ytd-container { display: none; flex-direction: column; gap: 15px; padding: 0px 10px 80px 10px; }
@@ -80,7 +81,6 @@
         .v3-input { background: #000; color: #fff; border: 1.5px solid var(--accent); border-radius: 4px; height: 36px; width: 70px; text-align: center; font-family: monospace; font-size: 12px; font-weight: 700; outline: none; }
         .v3-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.3); }
         
-        /* NEW: Extras Drawer Styling */
         .move-up-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
         .move-up-btn.glow-blue { border-color: var(--electric); color: var(--electric); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 5px rgba(41, 121, 255, 0.3); }
         .move-up-btn.glow-gold { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
@@ -88,11 +88,9 @@
         .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 4px; width: 100%; }
         .extra-rate-select.show { display: block; }
         
-        /* UPDATED: Extras Drawer Layout (3 Columns) */
         .move-up-zone { display: none; padding-top: 4px; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 4px; }
         .move-up-zone.show { display: grid; }
         
-        /* NEW: Ticket Checkbox */
         .mt-label { display: flex; align-items: center; justify-content: center; gap:3px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: var(--gold); font-size: 9px; font-weight: 800; cursor: pointer; user-select: none; }
         .mt-label input { width: 10px; height: 10px; accent-color: var(--gold); margin: 0; }
         
@@ -101,6 +99,7 @@
         .cb-label input { width: 12px; height: 12px; margin: 0; accent-color: var(--accent); }
         .cb-label.xtra { border-color: var(--success); color: var(--success); background: rgba(0, 200, 83, 0.1); }
         .cb-label.xtra input { accent-color: var(--success); }
+        .cb-label.call { border-color: var(--accent); color: var(--accent); }
         .cb-label.call { border-color: var(--accent); color: var(--accent); }
         .cb-label.hol { border-color: #ba68c8; color: #ba68c8; }
         .cb-label.ro { border-color: var(--danger); color: var(--danger); }
@@ -194,22 +193,6 @@
         .tab-sub.active { background: var(--accent); color: white; border-color: var(--accent); }
         .contract-view-content { display: none; }
         .contract-view-content.show { display: block; }
-        
-        /* NEW: Extras Drawer Styling */
-        .move-up-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
-        .move-up-btn.glow-blue { border-color: var(--electric); color: var(--electric); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 5px rgba(41, 121, 255, 0.3); }
-        .move-up-btn.glow-gold { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
-        
-        .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 4px; width: 100%; }
-        .extra-rate-select.show { display: block; }
-        
-        /* UPDATED: Extras Drawer Layout (3 Columns) */
-        .move-up-zone { display: none; padding-top: 4px; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 4px; }
-        .move-up-zone.show { display: grid; }
-        
-        /* NEW: Ticket Checkbox */
-        .mt-label { display: flex; align-items: center; justify-content: center; gap:3px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: var(--gold); font-size: 9px; font-weight: 800; cursor: pointer; user-select: none; }
-        .mt-label input { width: 10px; height: 10px; accent-color: var(--gold); margin: 0; }
     </style>
 </head>
 <body>
@@ -226,7 +209,7 @@
                         <option value="2030">2030 LEDGER</option>
                         <option value="2031">2031 LEDGER</option>
                     </select>
-                    <div style="font-size:10px; color:#888;">#1 SP AWS PAYCHECK LEDGER V3.6.2</div>
+                    <div style="font-size:10px; color:#888;">#1 SP AWS PAYCHECK LEDGER V3.6.4</div>
                 </div>
                 <div style="display:flex; align-items:center;">
                     <div class="dash-stats"><div id="header-ytd-label">EST. GROSS YTD</div><div class="ytd-val" id="header-ytd-gross">$0.00</div></div>
@@ -314,9 +297,6 @@
                 <span class="input-label">Bidded Job Class</span><select id="biddedRate" onchange="calc(); saveSettings();"><option value="5">Level 5</option><option value="4">Level 4</option><option value="3">Level 3</option><option value="2">Level 2</option><option value="1">Level 1</option></select>
                 <div class="collapsible-header" onclick="document.getElementById('sched-box').classList.toggle('show');"><span class="arrow">▶</span><span class="pref-title" style="color:var(--dim); font-size:0.65em;">DIFFERENT SCHEDULED JOB CLASS?</span></div><div id="sched-box" class="collapsible-content"><span class="input-label">Scheduled Job Class</span><select id="scheduledRate" onchange="calc(); saveSettings();"><option value="0">Same as Bidded</option><option value="5">Level 5</option><option value="4">Level 4</option><option value="3">Level 3</option><option value="2">Level 2</option><option value="1">Level 1</option></select></div>
                 
-                <span class="input-label" style="margin-top:10px; color:var(--gold);">Meal Ticket Value ($)</span>
-                <input type="number" id="mt-val" placeholder="16.17" oninput="saveSettings()">
-
                 <span class="input-label" style="margin-top:10px;">Prior Year W2 (Minus Profit Sharing)</span><input type="number" id="prevW2" placeholder="0.00" oninput="calc(); saveSettings();"><div id="vacRateDisplay" style="text-align:right; font-family:monospace; color:#ffeb3b;">Vacation Rate: $0.00 / hr</div>
                 <span class="input-label" style="margin-top:10px;">Default Incentive Forecast (%)</span><input type="number" id="defInc" placeholder="Can be set to a min % if you feel confident. Default = 0" oninput="saveSettings();">
                 <span class="input-label" style="margin-top:10px;">Hire Date (Continuous Service)</span><div style="display:grid; grid-template-columns: 2fr 1fr; gap:5px;"><input type="date" id="hire-date" onchange="saveSettings()"><input type="number" id="hire-year-manual" placeholder="Year" oninput="quickSetYear(this.value)"></div>
@@ -324,14 +304,14 @@
             </div>
         </div>
         <div class="pref-card">
-            <div class="collapsible-header" onclick="toggleCard('card2')"><span id="arrow-card2" class="arrow">▶</span><span class="pref-title">2. FUTURE PAY RATES</span></div>
+            <div class="collapsible-header" onclick="toggleCard('card2')"><span id="arrow-card2" class="arrow">▶</span><span class="pref-title">2. PAY RATES & MEAL TICKET</span></div>
             <div id="card2" class="collapsible-content">
                 <div class="tab-sub-bar">
                     <button class="tab-sub active" id="ts-current" onclick="switchContractTab('current')">CURRENT RATES</button>
                     <button class="tab-sub" id="ts-contract" onclick="switchContractTab('contract')">CONTRACT PLANNER</button>
                 </div>
                 <div id="cv-current" class="contract-view-content show" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <div><span class="input-label">L5 Rate ($)</span><input type="number" id="rateL5" value="38.37" oninput="calc(); saveSettings();"></div><div><span class="input-label">L4 Rate ($)</span><input type="number" id="rateL4" value="36.12" oninput="calc(); saveSettings();"></div><div><span class="input-label">L3 Rate ($)</span><input type="number" id="rateL3" value="34.32" oninput="calc(); saveSettings();"></div><div><span class="input-label">L2 Rate ($)</span><input type="number" id="rateL2" value="31.21" oninput="calc(); saveSettings();"></div><div><span class="input-label">L1 Rate ($)</span><input type="number" id="rateL1" value="28.51" oninput="calc(); saveSettings();"></div>
+                    <div><span class="input-label">L5 Rate ($)</span><input type="number" id="rateL5" placeholder="38.37" oninput="calc(); saveSettings();"></div><div><span class="input-label">L4 Rate ($)</span><input type="number" id="rateL4" placeholder="36.12" oninput="calc(); saveSettings();"></div><div><span class="input-label">L3 Rate ($)</span><input type="number" id="rateL3" placeholder="34.32" oninput="calc(); saveSettings();"></div><div><span class="input-label">L2 Rate ($)</span><input type="number" id="rateL2" placeholder="31.21" oninput="calc(); saveSettings();"></div><div><span class="input-label">L1 Rate ($)</span><input type="number" id="rateL1" placeholder="28.51" oninput="calc(); saveSettings();"></div><div><span class="input-label" style="color:var(--gold);">Meal Ticket ($)</span><input type="number" id="mt-val" placeholder="16.17" oninput="saveSettings()"></div>
                 </div>
                 <div id="cv-contract" class="contract-view-content">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;"><input type="checkbox" id="enable-contract" onchange="saveSettings()"><span style="font-weight:bold; font-size:13px;">Enable Contract Logic</span></div>
@@ -346,7 +326,7 @@
             </div>
         </div>
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card3')"><span id="arrow-card3" class="arrow">▶</span><span class="pref-title">3. SMART RATE FINDER</span></div><div id="card3" class="collapsible-content"><div id="rate-tool" class="rate-tool-box" style="display:block; margin-bottom:5px;"><div style="font-size:10px; color:#888; margin-bottom:5px;">Calculates rate based on Gross minus 401k Setting</div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><input type="number" id="rt-gross" placeholder="Total Gross"><input type="number" id="rt-tax" placeholder="Tax Paid ($)"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;"><button onclick="calcRateResult()" style="background:var(--accent); color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold; font-size:12px;">CALCULATE</button><span id="rt-result" style="font-weight:800; color:var(--success); font-size:18px;">0.000%</span></div><div class="rt-actions" style="grid-template-columns: 1fr 1fr;"><button class="apply-btn" onclick="applyRate('fedTaxRate')">SET FED RATE</button><button class="apply-btn" onclick="applyRate('stateTaxRate')">SET STATE RATE</button></div></div></div></div>
-        <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card4')"><span id="arrow-card4" class="arrow">▶</span><span class="pref-title">4. TAX & RETIREMENT (%)</span></div><div id="card4" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">401k %</span><input type="number" id="kRate" oninput="calc(); saveSettings();"></div><div><span class="input-label">Fed W/H %</span><input type="number" id="fedTaxRate" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Ohio W/H %</span><input type="number" id="stateTaxRate" value="2.75" oninput="calc(); saveSettings();"></div><div><span class="input-label">City %</span><input type="number" id="cityTaxRate" value="2.5" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">FICA EE %</span><input type="number" id="ficaRate" value="6.2" oninput="calc(); saveSettings();"></div><div><span class="input-label">Fed MWT EE %</span><input type="number" id="medRate" value="1.45" oninput="calc(); saveSettings();"></div></div></div></div>
+        <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card4')"><span id="arrow-card4" class="arrow">▶</span><span class="pref-title">4. TAX & RETIREMENT (%)</span></div><div id="card4" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">401k %</span><input type="number" id="kRate" oninput="calc(); saveSettings();" enterkeyhint="next"></div><div><span class="input-label">Fed W/H %</span><input type="number" id="fedTaxRate" oninput="calc(); saveSettings();" enterkeyhint="next"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Ohio W/H %</span><input type="number" id="stateTaxRate" value="2.75" oninput="calc(); saveSettings();" enterkeyhint="next"></div><div><span class="input-label">City %</span><input type="number" id="cityTaxRate" value="2.5" oninput="calc(); saveSettings();" enterkeyhint="next"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">FICA EE %</span><input type="number" id="ficaRate" value="6.2" oninput="calc(); saveSettings();" enterkeyhint="next"></div><div><span class="input-label">Fed MWT EE %</span><input type="number" id="medRate" value="1.45" oninput="calc(); saveSettings();" enterkeyhint="next"></div></div></div></div>
         <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card5')"><span id="arrow-card5" class="arrow">▶</span><span class="pref-title">5. FLAT DEDUCTIONS ($)</span></div><div id="card5" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">USW Dues %</span><input type="number" id="duesRate" value="1.45" oninput="calc(); saveSettings();"></div><div><span class="input-label">Charity</span><input type="number" id="charity" oninput="calc(); saveSettings();"></div></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">OPTL Life EE</span><input type="number" id="lifeEE" oninput="calc(); saveSettings();"></div><div><span class="input-label">Addl Optional</span><input type="number" id="addOpt" oninput="calc(); saveSettings();"></div></div>
         <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px;">
             <span style="color:var(--accent); font-size:11px; font-weight:bold;">LOAN 1 TRACKER</span>
@@ -373,7 +353,7 @@
                 <div><span class="input-label">Sec. Acct 3</span><input type="number" id="dist3" placeholder="0.00" oninput="saveSettings(); renderDashboard();"></div>
             </div>
         </div></div>
-        <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card7')"><span id="arrow-card7" class="arrow">▶</span><span class="pref-title">7. ADVANCED DUES LOGIC</span></div><div id="card7" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Cap Threshold ($)</span><input type="number" id="duesCapThresh" value="5500" oninput="calc(); saveSettings();"></div><div><span class="input-label">Hourly Rate ($)</span><input type="number" id="duesHrRate" value="0.02" oninput="calc(); saveSettings();"></div><div><span class="input-label">Cap Factor</span><input type="number" id="duesCapFactor" value="1.2923" oninput="calc(); saveSettings();"></div></div></div></div>
+        <div class="pref-card"><div class="collapsible-header" onclick="toggleCard('card7')"><span id="arrow-card7" class="arrow">▶</span><span class="pref-title">7. DUES CALIBRATION</span></div><div id="card7" class="collapsible-content"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div><span class="input-label">Hourly Factor</span><input type="number" id="duesCapFactor" value="1.2923" oninput="calc(); saveSettings();"></div><div><span class="input-label">Hourly Rate ($)</span><input type="number" id="duesHrRate" value="0.02" oninput="calc(); saveSettings();"></div></div><div style="margin-top:5px; color:#666; font-size:10px;">App automatically selects the lower option between 1.45% of Gross vs. Hourly Factor Cap.</div></div></div>
         <button class="reset-btn" onclick="resetCheckData()">RESET CHECK DATA</button><button class="reset-btn" style="margin-top:10px; border-color:var(--dim); color:var(--dim);" onclick="resetSettings()">RESET APP SETTINGS</button>
     </div>
     <div id="vacation-view"><div class="nav-bar"><div class="nav-wrapper"><button class="back-btn" onclick="closeVacationView()">❮</button><div class="period-title"><span class="pt-main">VACATION PLANNER</span></div><button class="close-set-btn" onclick="closeVacationView()">DONE</button></div></div><div class="summary-box"><div class="sum-row" style="border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px;"><span>Split Weeks (WAD):</span><select id="wad-select" style="width:100px; background:#222; border:none; color:var(--warning); font-weight:bold; padding:2px;" onchange="saveSettings(); updateVacSummary();"><option value="0">0 Weeks</option><option value="1">1 Week</option><option value="2">2 Weeks</option></select></div><div class="sum-row"><span>Entitlement:</span><span id="vac-total-ent" class="sum-val">0 Weeks</span></div><div class="sum-row" style="color:var(--success)"><span>Weeks Left:</span><span id="vac-blocks-left" class="sum-val">0</span></div><div class="sum-row" style="color:var(--warning)"><span>Days Left:</span><span id="vac-days-left" class="sum-val">0</span></div></div><div id="calendar-container"></div></div>
@@ -496,7 +476,7 @@
         }
     }
 
-    function init() { try { genPeriods(); loadLedger(); loadSettings(); renderYTD(); renderDashboard(); } catch(e) { console.error(e); } }
+    function init() { try { genPeriods(); loadLedger(); loadSettings(); renderYTD(); renderDashboard(); updateGhostRates(); } catch(e) { console.error(e); } }
     function switchYear(val) { currentYear = parseInt(val); genPeriods(); init(); }
     function quickSetYear(val) { if(val.length===4){let y=parseInt(val);if(y>1950&&y<2030){document.getElementById('hire-date').value=`${y}-01-01`;saveSettings();}}}
 
@@ -712,16 +692,39 @@
         if(!container) return;
         container.innerHTML = ""; 
         const groups = [ { key: 'pretax', title: 'PRE-TAX DEDUCTIONS' }, { key: 'taxes', title: 'TAXES' }, { key: 'posttax', title: 'POST-TAX DEDUCTIONS' } ]; 
+        
+        // Flatten list for turbo navigation
+        let inputOrder = [];
+        groups.forEach(g => catMap[g.key].forEach(k => inputOrder.push(`in-${k}`)));
+
         groups.forEach(group => { 
             let box = document.createElement('div'); box.className = 'stub-box'; 
             let header = document.createElement('div'); header.className = 'stub-header'; header.innerText = group.title; box.appendChild(header); 
             catMap[group.key].forEach(k => { 
                 let row = document.createElement('div'); row.className = 'deduction-line'; 
-                row.innerHTML = `<div class="d-label">${deductionLabels[k]}</div><div class="d-detail" id="detail-${k}"></div><div class="d-est" id="est-${k}">$0.00</div><input type="number" class="d-input" id="in-${k}" placeholder="0.00" oninput="updateAudit('${k}', this.value)"><div class="d-delta" id="delta-${k}"></div><button class="d-action" id="action-${k}">↺ RATE</button>`; 
+                row.innerHTML = `<div class="d-label">${deductionLabels[k]}</div><div class="d-detail" id="detail-${k}"></div><div class="d-est" id="est-${k}">$0.00</div><input type="number" class="d-input" id="in-${k}" placeholder="0.00" oninput="updateAudit('${k}', this.value)" enterkeyhint="next"><div class="d-delta" id="delta-${k}"></div><button class="d-action" id="action-${k}">↺ RATE</button>`; 
                 box.appendChild(row); 
             }); 
             container.appendChild(box); 
         }); 
+
+        // Apply Daisy Chain logic
+        inputOrder.forEach((id, idx) => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.onkeydown = function(e) {
+                    if(e.key === 'Enter') {
+                        e.preventDefault();
+                        if(idx < inputOrder.length - 1) {
+                            let nextEl = document.getElementById(inputOrder[idx+1]);
+                            if(nextEl) nextEl.focus();
+                        } else {
+                            el.blur(); // Done
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function handleManualInput(w, d) {
@@ -739,7 +742,7 @@
 
     function renderCalculator(pStart) {
         const container = document.getElementById('calculator-content'); container.innerHTML = "";
-        let r5 = document.getElementById('rateL5').value, r4 = document.getElementById('rateL4').value, r3 = document.getElementById('rateL3').value, r2 = document.getElementById('rateL2').value, r1 = document.getElementById('rateL1').value;
+        let r5 = document.getElementById('rateL5').value || 38.37, r4 = document.getElementById('rateL4').value || 36.12, r3 = document.getElementById('rateL3').value || 34.32, r2 = document.getElementById('rateL2').value || 31.21, r1 = document.getElementById('rateL1').value || 28.51;
         let optHTML = `<option value="0">OT Rate</option><option value="5">L5 - $${r5}</option><option value="4">L4 - $${r4}</option><option value="3">L3 - $${r3}</option><option value="2">L2 - $${r2}</option><option value="1">L1 - $${r1}</option>`;
         let stepHTML = `<option value="0">Rate</option><option value="5">L5</option><option value="4">L4</option><option value="3">L3</option><option value="2">L2</option><option value="1">L1</option>`;
         let btnText = "12 HR";
@@ -748,7 +751,7 @@
         container.innerHTML += `<div style="text-align:center; font-size:10px; color:#ffb300; margin-bottom:5px; font-weight:bold;">MANUAL ENTRY FORMAT: HH.MM (Decimal = Minutes)</div>`;
 
         for(let w=1; w<=2; w++) {
-            container.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin:15px 10px 5px 10px;"><b style="color:var(--accent)">WEEK ${w}</b><label style="color:var(--gold); font-size:11px; font-weight:bold;"><input type="checkbox" id="sm-${w}" onchange="triggerSM(${w})" data-rate="1.5"> Safety Meeting</label><div style="width:80px;"><input type="number" id="bonus-${w}" style="background:#004d40; color:white; margin:0; border:none; padding:8px; border-radius:6px; width:100%;" placeholder="Inc %" oninput="calc();"></div></div>`;
+            container.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin:15px 10px 5px 10px;"><b style="color:var(--accent)">WEEK ${w}</b><label style="color:var(--gold); font-size:11px; font-weight:bold;"><input type="checkbox" id="sm-${w}" onchange="triggerSM(${w})" data-rate="1.5"> Safety Meeting</label><div style="width:80px;"><input type="number" id="bonus-${w}" style="background:#004d40; color:white; margin:0; border:none; padding:8px; border-radius:6px; width:100%;" placeholder="Inc %" oninput="calc();" enterkeyhint="${w===1?'next':'done'}" onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('bonus-${w===1?'2':'1'}').focus();}"></div></div>`;
             days.forEach((day, i) => {
                 let isSun = (day === 'Sun'), dateNum = cur.getDate();
                 let curDateStr = cur.toISOString().split('T')[0];
@@ -953,7 +956,7 @@
                                 card.classList.add('hol-unworked'); 
                                 GT.uhC += (bidRate * 8); 
                                 GT.uhH += 8; 
-                            }
+                            } 
                         } 
                     } 
                 }
@@ -999,7 +1002,9 @@
                         if(document.getElementById(`call-${w}-${d}`).checked) { wk.cC += (eR * 2); wk.cH += 2; }
                         let holCheck = document.getElementById(`hol-${w}-${d}`);
                         let isHoliday = (holCheck && holCheck.checked); 
-                        let fills = (d === 0) || (!isHoliday && !isXTRA);
+                        
+                        // NEW LOGIC: Fills bucket if it is NOT XTRA. (Holiday now fills. Regular now fills.)
+                        let fills = !isXTRA;
                         let maxB = Math.ceil(tH * 4);
                         
                         for (let b = 1; b <= maxB; b++) {
@@ -1011,12 +1016,11 @@
                             
                             if (isHoliday) {
                                 otPart = chunk; wk.hC += (curR * 2.5 * otPart); wk.hH += otPart; wk.incC += (curR * 2.5 * otPart);
+                                if(fills) buck = buck + chunk;
                             } else if (isXTRA) {
                                 otPart = chunk;
                                 if(d===0) { wk.sC += (curR * 1.5 * otPart); wk.sH += otPart; wk.incC += (curR * 1.5 * otPart);
-                                wk.incC += (curR * 1.5 * otPart);
-                                } else { wk.oC += (curR * 1.5 * otPart); wk.oH += otPart; }
-                                wk.incC += (curR * 1.5 * otPart);
+                                } else { wk.oC += (curR * 1.5 * otPart); wk.oH += otPart; wk.incC += (curR * 1.5 * otPart); }
                             } else {
                                 let space = Math.max(0, 40.00 - buck);
                                 if (d===0) {
@@ -1074,19 +1078,28 @@
             <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${GT.cH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.cH>0?GT.cC/GT.cH:workRate)}</div><div class="grid-amt">${f(GT.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${GT.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(GT.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${GT.hH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.hH>0?GT.hC/GT.hH:workRate*2.5)}</div><div class="grid-amt">${f(GT.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${GT.oH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.oH>0?GT.oC/GT.oH:workRate*1.5)}</div><div class="grid-amt">${f(GT.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${GT.sH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.sH>0?GT.sC/GT.sH:workRate*1.5)}</div><div class="grid-amt">${f(GT.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${GT.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(GT.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.vbC)}</div><div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.rH>0?GT.rC/GT.rH:workRate)}</div><div class="grid-amt">${f(GT.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(sAmt)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.incC)}</div><div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div></div>`;
             document.getElementById('grossDisplay').innerText = f(totalGross);
             
-            let dR = parseFloat(document.getElementById('duesRate').value)||0;
-            let dCT = parseFloat(document.getElementById('duesCapThresh').value)||5500; 
-            let dCF = parseFloat(document.getElementById('duesCapFactor').value)||1.2923;
+            // DUES LOGIC REPLACEMENT: AUTOMATIC MIN() CALCULATION
+            let dR = parseFloat(document.getElementById('duesRate').value)||0; // 1.45%
+            let dCF = parseFloat(document.getElementById('duesCapFactor').value)||1.2923; // 1.2923 Factor
             let dHrR = parseFloat(document.getElementById('duesHrRate').value)||0.02;
-            let dEst = (totalGross < dCT) ? r2(totalGross * (dR/100)) : ((totalWorkHrs-GT.cH)>0 ? r2((totalGross/(totalWorkHrs-GT.cH))*dCF) : 0);
-            
+
+            // Option A: Percentage Method
+            let valPct = totalGross * (dR / 100);
+
+            // Option B: Cap Factor Method (Avg Hourly Rate * Factor)
+            let avgHrRate = (totalWorkHrs > 0) ? (totalGross / totalWorkHrs) : 0;
+            let valCap = avgHrRate * dCF;
+
+            // Select the CHEAPER option
+            let dEst = Math.min(valPct, valCap);
+
             let kR = (parseFloat(document.getElementById('kRate').value)||0)/100;
             let fR_t = (parseFloat(document.getElementById('fedTaxRate').value)||0)/100;
             let sR = (parseFloat(document.getElementById('stateTaxRate').value)||0)/100;
             let cR = (parseFloat(document.getElementById('cityTaxRate').value)||0)/100;
             
             let est = { 
-                k: r2(totalGross*kR), fed: r2((totalGross - r2(totalGross*kR))*fR_t), state: r2((totalGross - r2(totalGross*kR))*sR), city: r2(totalGross*cR), fica: r2(totalGross*0.062), med: r2(totalGross*0.0145), dues: dEst, duesHr: r2(totalWorkHrs*dHrR), life: parseFloat(document.getElementById('lifeEE').value)||0, addOpt: parseFloat(document.getElementById('addOpt').value)||0, charity: parseFloat(document.getElementById('charity').value)||0, l1: parseFloat(document.getElementById('loan1').value)||0, l2: parseFloat(document.getElementById('loan2').value)||0, garn: parseFloat(document.getElementById('garnishment').value)||0 
+                k: r2(totalGross*kR), fed: r2((totalGross - r2(totalGross*kR))*fR_t), state: r2((totalGross - r2(totalGross*kR))*sR), city: r2(totalGross*cR), fica: r2(totalGross*0.062), med: r2(totalGross*0.0145), dues: r2(dEst), duesHr: r2(totalWorkHrs*dHrR), life: parseFloat(document.getElementById('lifeEE').value)||0, addOpt: parseFloat(document.getElementById('addOpt').value)||0, charity: parseFloat(document.getElementById('charity').value)||0, l1: parseFloat(document.getElementById('loan1').value)||0, l2: parseFloat(document.getElementById('loan2').value)||0, garn: parseFloat(document.getElementById('garnishment').value)||0 
             };
             
             let act = auditData[currentPeriodId] || {}, finalD = 0, taxG = totalGross - est.k; 
@@ -1125,29 +1138,6 @@
             if(isV) { nb.classList.add('verified'); } else { nb.classList.remove('verified'); }
             document.getElementById('netDisplay').innerText = f(net > 0 ? net : 0);
         } catch(e) { console.error("Calc Error: " + e.message); alert("Calculation Error: " + e.message); }
-    }
-
-    function saveAndClose() { 
-        let pData = { inputs: {}, gross: 0, net: 0, actuals: {}, breakdown: {}, breakdownHrs: {}, deductions: {} }; 
-        document.querySelectorAll('#calculator-view input:not(.d-input), #calculator-view select').forEach(el => { if(el.type === 'checkbox') pData.inputs[el.id] = el.checked; else pData.inputs[el.id] = el.value; }); 
-        document.querySelectorAll('.btn-12').forEach(b => { if(b.classList.contains('active')) pData.inputs[b.id] = true; }); 
-        pData.actuals = auditData[currentPeriodId] || {}; 
-        pData.inputs['audit-toggle'] = document.getElementById('audit-toggle').checked; 
-        pData.inputs['verified-toggle'] = document.getElementById('verified-toggle').checked; 
-        pData.gross = parseFloat(document.getElementById('grossDisplay').innerText.replace(/[^0-9.-]+/g,"")) || 0; 
-        pData.net = parseFloat(document.getElementById('netDisplay').innerText.replace(/[^0-9.-]+/g,"")) || 0; 
-        pData.breakdown = lastCalcBreakdown; 
-        let totalOTPay = lastCalcBreakdown.Overtime || 0;
-        pData.otPremium = totalOTPay / 3;
-        pData.breakdownHrs = lastCalcHours; 
-        pData.deductions = lastUsedDeductions; 
-        ledgerData[currentPeriodId] = pData; 
-        localStorage.setItem(`ledger_${currentYear}_final`, JSON.stringify(ledgerData)); 
-        
-        document.getElementById('calculator-view').style.display = 'none'; 
-        toggleMainHeader(true);
-        document.getElementById('dashboard-view').style.display = 'block'; 
-        renderDashboard(); 
     }
 
     function toggleRO(w, d) { 
@@ -1235,9 +1225,6 @@
         if(taxable>0) document.getElementById('rt-result').innerText = ((t/taxable)*100).toFixed(4)+'%'; 
     }
     function applyRate(targetId) { let res = document.getElementById('rt-result').innerText; if(res !== '0.000%') { document.getElementById(targetId).value = parseFloat(res).toFixed(4); calc(); saveSettings(); alert('Updated!'); } }
-
-    function openSettings() { toggleMainHeader(false); document.getElementById('dashboard-view').style.display='none'; document.getElementById('settings-view').style.display='block'; window.scrollTo(0,0); }
-    function closeSettings() { document.getElementById('settings-view').style.display='none'; toggleMainHeader(true); document.getElementById('dashboard-view').style.display='block'; }
 
     function triggerSM(w) {
         if(document.getElementById('sm-'+w).checked) {
@@ -1357,6 +1344,37 @@
         document.getElementById('vac-days-left').style.color = (stats.daysLeft < 0) ? '#ff5252' : '#ffeb3b';
     }
 
+    function updateGhostRates() {
+        // Calculate potential rates based on contract planner to update placeholders
+        let useContract = document.getElementById('enable-contract').checked;
+        if(!useContract) return; // Keep defaults if off
+
+        let baseRates = { 1: 28.51, 2: 31.21, 3: 34.32, 4: 36.12, 5: 38.37 };
+        let cStart = document.getElementById('contract-start').value;
+        if(!cStart) return;
+        
+        let cDate = new Date(cStart);
+        let now = new Date();
+        let diffTime = Math.abs(now - cDate);
+        let diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
+        
+        let type = document.getElementById('raise-type').value; 
+        let r1 = parseFloat(document.getElementById('raise-1').value)||0;
+        let r2 = parseFloat(document.getElementById('raise-2').value)||0;
+        let r3 = parseFloat(document.getElementById('raise-3').value)||0;
+
+        for(let l=1; l<=5; l++) {
+            let base = baseRates[l];
+            let totalRaise = 0;
+            if (diffYears >= 0) { if(type === 'amt') totalRaise += r1; else totalRaise += (base * (r1/100)); }
+            if (diffYears >= 1) { if(type === 'amt') totalRaise += r2; else totalRaise += ((base+totalRaise) * (r2/100)); }
+            if (diffYears >= 2) { if(type === 'amt') totalRaise += r3; else totalRaise += ((base+totalRaise) * (r3/100)); }
+            let final = (base + totalRaise).toFixed(2);
+            let el = document.getElementById('rateL'+l);
+            if(el) el.placeholder = final;
+        }
+    }
+
     function saveSettings() { 
         let s = {}; 
         document.querySelectorAll('#settings-view input, #settings-view select').forEach(el => {
@@ -1367,6 +1385,7 @@
         s.wad = document.getElementById('wad-select').value; 
         s.vacationDates = vacationDates;
         localStorage.setItem('app_settings_v30', JSON.stringify(s)); 
+        updateGhostRates();
     }
     function loadSettings() { 
         let set = localStorage.getItem('app_settings_v30'); 
@@ -1438,6 +1457,7 @@
     }
 
     function autoScroll() {
+        if(document.getElementById('settings-view').style.display === 'block') return;
         setTimeout(() => {
             let cards = document.querySelectorAll('.pay-card');
             let target = null;
