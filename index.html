@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>#1 SP AWS Paycheck Ledger V3.6.5 (Auto-Pivot)</title>
+    <title>#1 SP AWS Paycheck Ledger V3.6.6 (Auto-Pivot)</title>
     <style>
         :root { --bg: #000000; --app-bg: #000000; --card: #1e1e1e; --text: #e0e0e0; --border: #333; --row: #2a2a2a; --accent: #4dadff; --dim: #888; --success: #00c853; --danger: #ff5252; --warning: #ffb300; --gold: #ffd700; --est-yellow: #ffeb3b; --hol-work: #7b1fa2; --hol-off: #4a148c; --vacation: #ff6f00; --electric: #2979ff; }
         * { box-sizing: border-box; }
@@ -85,7 +85,8 @@
         .move-up-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--dim); border-radius: 4px; font-size: 8px; padding: 3px; font-weight: bold; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
         .move-up-btn.glow-blue { border-color: var(--electric); color: var(--electric); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 5px rgba(41, 121, 255, 0.3); }
         .move-up-btn.glow-gold { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
-        
+        .glow-green { border-color: var(--success) !important; color: var(--success) !important; background: rgba(0, 200, 83, 0.1) !important; box-shadow: 0 0 8px rgba(0, 200, 83, 0.4) !important; }
+
         .extra-rate-select { display: none; background: #004d40; color: white; border: 1px solid #00695c; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 4px; width: 100%; }
         .extra-rate-select.show { display: block; }
         
@@ -211,7 +212,7 @@
                         <option value="2030">2030 LEDGER</option>
                         <option value="2031">2031 LEDGER</option>
                     </select>
-                    <div style="font-size:10px; color:#888;">#1 SP AWS PAYCHECK LEDGER V3.6.5</div>
+                    <div style="font-size:10px; color:#888;">#1 SP AWS PAYCHECK LEDGER V3.6.6</div>
                 </div>
                 <div style="display:flex; align-items:center;">
                     <div class="dash-stats"><div id="header-ytd-label">EST. GROSS YTD</div><div class="ytd-val" id="header-ytd-gross">$0.00</div></div>
@@ -455,8 +456,47 @@
     }
 
     function getEaster(year) { let f=Math.floor,G=year%19,C=f(year/100),H=(C-f(C/4)-f((8*C+13)/25)+19*G+15)%30,I=H-f(H/28)*(1-f(29/(H+1))*f((21-G)/11)),J=(year+f(year/4)+I+2-C+f(C/4))%7,L=I-J,m=3+f((L+40)/44),d=L+28-31*f(m/4); return new Date(year,m-1,d); }
-    function isUnionHoliday(dateStr){let parts=dateStr.split('-'),y=parseInt(parts[0]),m=parseInt(parts[1])-1,dy=parseInt(parts[2]),d=new Date(y,m,dy),e=getEaster(y),gf=new Date(e);gf.setDate(e.getDate()-2);if(m==0&&dy==1)return"New Years";if(m==5&&dy==19)return"Juneteenth";if(m==6&&dy==4)return"Independence";if(m==11&&dy==24)return"Xmas Eve";if(m==11&&dy==25)return"Xmas Day";if(m==gf.getMonth()&&dy==gf.getDate())return"Good Friday";let dw=d.getDay(),n=Math.ceil(dy/7);if(m==0&&dw==1&&n==3)return"MLK Day";if(m==4&&dw==1&&dy+7>31)return"Memorial Day";if(m==8&&dw==1&&n==1)return"Labor Day";if(m==10&&dw==4&&n==4)return"Thanksgiving";if(m==10&&dw==5&&dy>23&&dy<31){let p=new Date(y,m,dy-1);if(p.getDay()==4&&Math.ceil(p.getDate()/7)==4)return"Day After TG"}return null;}
-    function isBankHoliday(d){let m=d.getMonth(),dy=d.getDate();if(m==0&&dy==1||m==5&&dy==19||m==6&&dy==4||m==10&&dy==11||m==11&&dy==25)return true;let dw=d.getDay(),n=Math.ceil(dy/7);if(m==0&&dw==1&&n==3||m==1&&dw==1&&n==3||(m==4&&dw==1&&dy+7>31)||m==8&&dw==1&&n==1||m==9&&dw==1&&n==2||m==10&&dw==4&&n==4)return true;return false;}
+function isUnionHoliday(dateStr){
+        let parts=dateStr.split('-'), y=parseInt(parts[0]), m=parseInt(parts[1])-1, dy=parseInt(parts[2]);
+        let d=new Date(y,m,dy);
+        let dw=d.getDay(), n=Math.ceil(dy/7);
+        let e=getEaster(y), gf=new Date(e); gf.setDate(e.getDate()-2);
+        
+        // Smart Fixed Holiday Check (Pushes Sundays to Monday)
+        function isObserved(cM, cD) {
+            let hd = new Date(y, cM, cD);
+            if (hd.getDay() === 0) { 
+                let obs = new Date(y, cM, cD + 1);
+                return (m === obs.getMonth() && dy === obs.getDate());
+            }
+            return (m === cM && dy === cD);
+        }
+        
+        if(isObserved(0, 1)) return "New Years";
+        if(isObserved(5, 19)) return "Juneteenth";
+        if(isObserved(6, 4)) return "Independence";
+        
+        // Christmas Eve / Day specific Sunday push logic
+        let xEve = new Date(y, 11, 24), xDay = new Date(y, 11, 25);
+        if (xEve.getDay() === 0) { // Eve is Sun -> Eve Mon, Day Tue
+            if(m===11 && dy===25) return "Xmas Eve";
+            if(m===11 && dy===26) return "Xmas Day";
+        } else if (xDay.getDay() === 0) { // Day is Sun -> Eve Sat, Day Mon
+            if(m===11 && dy===24) return "Xmas Eve";
+            if(m===11 && dy===26) return "Xmas Day";
+        } else {
+            if(m===11 && dy===24) return "Xmas Eve";
+            if(m===11 && dy===25) return "Xmas Day";
+        }
+        
+        if(m==gf.getMonth()&&dy==gf.getDate()) return "Good Friday";
+        if(m==0&&dw==1&&n==3) return "MLK Day";
+        if(m==4&&dw==1&&dy+7>31) return "Memorial Day";
+        if(m==8&&dw==1&&n==1) return "Labor Day";
+        if(m==10&&dw==4&&n==4) return "Thanksgiving";
+        if(m==10&&dw==5&&dy>23&&dy<31){let p=new Date(y,m,dy-1);if(p.getDay()==4&&Math.ceil(p.getDate()/7)==4)return "Day After TG"}
+        return null;
+    }    function isBankHoliday(d){let m=d.getMonth(),dy=d.getDate();if(m==0&&dy==1||m==5&&dy==19||m==6&&dy==4||m==10&&dy==11||m==11&&dy==25)return true;let dw=d.getDay(),n=Math.ceil(dy/7);if(m==0&&dw==1&&n==3||m==1&&dw==1&&n==3||(m==4&&dw==1&&dy+7>31)||m==8&&dw==1&&n==1||m==9&&dw==1&&n==2||m==10&&dw==4&&n==4)return true;return false;}
     function isBonusWeek(d) { let y = d.getFullYear(), m = d.getMonth(), dy = d.getDate(); if (m === 0 && dy >= 4) return true; if (m === 1) return true; if (m === 2 && dy <= 14) return true; return false; }
 
     const scheduleAnchor = new Date('2025-12-21T00:00:00');
@@ -645,7 +685,6 @@
             }); 
             document.querySelectorAll('.v3-input').forEach(s => s.value = "");
             
-            let sLen = 12;
             document.querySelectorAll('.btn-12').forEach(b => { b.classList.remove('active'); b.innerText = "12 HR"; }); 
             
             document.querySelectorAll('.day-card').forEach(c => { 
@@ -662,31 +701,42 @@
             let crewEl = document.getElementById('crew-select');
             let crew = crewEl ? crewEl.value : 'A';
             let offset = (crew === 'B') ? 2 : (crew === 'C') ? 4 : (crew === 'A') ? 6 : 0;
-            let diffTime = Math.abs(periodStart - scheduleAnchor);
-            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // MATH.ROUND FIX: Defeats the DST 23-hour trap
+            let diffTime = periodStart - scheduleAnchor; 
+            let diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
             let weeksPassed = Math.floor(diffDays / 7); 
             let adjustedWeek = ((weeksPassed + offset) % 8 + 8) % 8;
             let p1 = cyclePatterns[adjustedWeek];
             let p2 = cyclePatterns[(adjustedWeek + 1) % 8];
-            if (p1) p1.forEach(function(d) { let b = document.getElementById('btn-1-' + d); if(b) b.classList.add('active'); }); 
-            if (p2) p2.forEach(function(d) { let b = document.getElementById('btn-2-' + d); if(b) b.classList.add('active'); }); 
-
+            
+            // SMART SCHEDULER UPGRADE
             for(let w=1; w<=2; w++) {
+                let wkPattern = (w===1) ? p1 : p2;
                 for(let d=0; d<7; d++) { 
                     let card = document.getElementById('card-' + w + '-' + d);
                     let dateStr = card.getAttribute('data-date').split('T')[0];
                     let btn = document.getElementById('btn-' + w + '-' + d);
-                    let worked = btn.classList.contains('active'); 
-                    if(vacationDates.includes(dateStr)) {
-                        let vd = document.getElementById('vd-' + w + '-' + d);
-                        if(vd) vd.checked = true;
+                    let isScheduled = wkPattern && wkPattern.includes(d);
+                    
+                    let isVac = vacationDates.includes(dateStr);
+                    let sysHolName = isUnionHoliday(dateStr);
+                    
+                    let holCheck = document.getElementById('hol-' + w + '-' + d);
+                    let vdCheck = document.getElementById('vd-' + w + '-' + d);
+
+                    if (isVac) {
+                        if(vdCheck) vdCheck.checked = true;
                         btn.classList.remove('active');
-                        card.classList.add('status-vac');
-                    } else if(isUnionHoliday(dateStr) && worked) { 
-                        let hc = document.getElementById('hol-' + w + '-' + d); 
-                        if(hc) hc.checked = true; 
-                        card.classList.add('status-hol');
-                    } 
+                        card.classList.remove('status-worked');
+                    } else if (isScheduled) {
+                        btn.classList.add('active');
+                        if (!card.classList.contains('status-vac')) card.classList.add('status-worked');
+                        if (sysHolName && holCheck) holCheck.checked = true;
+                    } else {
+                        btn.classList.remove('active');
+                        card.classList.remove('status-worked');
+                    }
                 }
             }
             calc(); 
@@ -846,17 +896,33 @@
             updateVacationRateUI();
             if (!currentPeriodId) return;
 
+            let isDesShiftWorker = true; 
+            let mtVal = parseFloat(document.getElementById('mt-val').value) || 16.17;
+            let tripwireLimit = 12;
+
             let dayMap = [];
             let bidLvl = document.getElementById('biddedRate').value;
             let bidRate = getRate(bidLvl);
             let schedLvl = document.getElementById('scheduledRate').value;
             let workRate = (schedLvl == 0) ? bidRate : getRate(schedLvl);
-            let isDesShiftWorker = true; 
             let prevW2 = parseFloat(document.getElementById('prevW2').value) || 0;
             let vacHourly = Math.max(bidRate, (prevW2 * 0.02) / 40);
-            let mtVal = parseFloat(document.getElementById('mt-val').value) || 16.17;
             
+            // PRE-CHECK: Auto-check VW if full week is booked in planner
+            let pStart = periods[currentPeriodId-1].startDateObj;
             for(let w=1; w<=2; w++) {
+                let isFullWeekOrange = true;
+                for(let k=0; k<7; k++) {
+                    let curD = new Date(pStart);
+                    curD.setDate(curD.getDate() + ((w-1)*7) + k);
+                    if(!vacationDates.includes(fmt(curD))) isFullWeekOrange = false;
+                }
+                let vwCheck = document.getElementById('vw-'+w);
+                if(vwCheck && isFullWeekOrange) { vwCheck.checked = true; }
+            }
+
+            for(let w=1; w<=2; w++) {
+                let isVW = document.getElementById('vw-'+w)?.checked;
                 for(let d=0; d<7; d++) {
                     let card = document.getElementById(`card-${w}-${d}`);
                     let btn = document.getElementById(`btn-${w}-${d}`);
@@ -868,14 +934,14 @@
                     let holCheck = document.getElementById(`hol-${w}-${d}`);
                     let dqCheck = document.getElementById(`dq-${w}-${d}`); 
                     let mtCheck = document.getElementById(`mt-${w}-${d}`); 
+                    let vacCheck = document.getElementById(`vd-${w}-${d}`);
                     
                     let ro = roCheck.checked;
                     let xtra = xtraCheck ? xtraCheck.checked : false; 
                     let isHol = holCheck ? holCheck.checked : false;
-                    let vacCheck = document.getElementById(`vd-${w}-${d}`);
-                    let isVac = vacCheck ? vacCheck.checked : false;
+                    let isVD = vacCheck ? vacCheck.checked : false;
+                    let isVac = (isVW || isVD || vacationDates.includes(card.getAttribute('data-date').split('T')[0]));
                     let dateStr = card.getAttribute('data-date');
-                    let extra = false; 
 
                     let toggleBtnMU = document.getElementById(`toggle-mu-${w}-${d}`);
                     let toggleBtnES = document.getElementById(`toggle-es-${w}-${d}`);
@@ -884,21 +950,27 @@
                     let esH = document.getElementById(`es-hrs-${w}-${d}`).value;
                     let esR = document.getElementById(`es-rate-${w}-${d}`).value;
 
+                    // UI OVERHAUL: Green for Extra, Gold for MT Border
                     toggleBtnMU.classList.remove('glow-blue');
-                    toggleBtnES.classList.remove('glow-gold', 'glow-blue');
+                    toggleBtnES.classList.remove('glow-green', 'glow-blue', 'glow-gold');
+                    let mtLabel = mtCheck ? mtCheck.closest('.mt-label') : null;
+                    if (mtLabel) { mtLabel.style.borderColor = '#444'; mtLabel.style.color = 'var(--gold)'; }
                     
-                    if (stepH !== "" || stepR !== "0") {
-                        toggleBtnMU.classList.add('glow-blue');
-                    }
-                    if(mtCheck && mtCheck.checked) {
-                        toggleBtnES.classList.add('glow-gold');
-                    } else if (esH !== "" || esR !== "0") {
-                        toggleBtnES.classList.add('glow-blue');
-                    }
+                    if (stepH !== "" || stepR !== "0") { toggleBtnMU.classList.add('glow-blue'); }
+                    let hasES = (esH !== "" || esR !== "0");
+                    let hasMT = (mtCheck && mtCheck.checked);
+                    
+                    if (hasES || hasMT) { toggleBtnES.classList.add('glow-green'); }
+                    if (hasMT && mtLabel) { mtLabel.style.borderColor = 'var(--gold)'; }
 
                     let hasWork = false;
-                    if (timeHrs > 0) { hasWork = true; }
-                    else if (btn.classList.contains('active')) { hasWork = true; timeHrs = 12; }
+                    if (!isVac && !ro) {
+                        if (timeHrs > 0) { hasWork = true; }
+                        else if (btn.classList.contains('active')) { 
+                            hasWork = true; 
+                            timeHrs = parseFloat(btn.innerText.split(' ')[0]) || 12; 
+                        }
+                    }
                     
                     card.className = 'day-card'; 
                     btn.classList.remove('btn-green', 'btn-purple'); 
@@ -906,43 +978,27 @@
 
                     if (isHol || sysHolName) { card.classList.add('status-hol'); } 
                     else if (xtra) { card.classList.add('status-xtra'); } 
-                    else if (isVac || vacationDates.includes(dateStr.split('T')[0])) { card.classList.add('status-vac'); } 
+                    else if (isVac) { card.classList.add('status-vac'); } 
                     else if (ro) { card.classList.add('ro-active'); }
 
                     if (hasWork) {
                         btn.classList.add('active'); 
                         if (isHol || sysHolName) { btn.classList.add('btn-purple'); } 
                         else if (xtra) { btn.classList.add('btn-green'); } 
-                        else { if (!isVac) card.classList.add('status-worked'); }
+                        else { card.classList.add('status-worked'); }
+                    } else if (isVac) {
+                        btn.classList.remove('active');
+                        document.getElementById('time-'+w+'-'+d).value = ""; 
                     }
                     
-                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, extra: extra, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked), mt: (mtCheck && mtCheck.checked) });
+                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked), mt: hasMT });
                 }
             }
             if (dayMap.length === 0) return;
 
             let GT = { rH:0, rC:0, vH:0, vC:0, oH:0, oC:0, cH:0, cC:0, sH:0, sC:0, hH:0, hC:0, uhH:0, uhC:0, incC:0, vbC:0, mtH:0, mtC:0 };
             
-            for(let w=1; w<=2; w++) {
-                let isFullWeekOrange = true;
-                let startIdx = (w-1)*7;
-                for(let k=0; k<7; k++) {
-                    let dateStr = dayMap[startIdx+k].date.toISOString().split('T')[0];
-                    if(!vacationDates.includes(dateStr)) isFullWeekOrange = false;
-                }
-                let vwCheck = document.getElementById('vw-'+w);
-                if(vwCheck && isFullWeekOrange) {
-                    vwCheck.checked = true;
-                    for(let k=0; k<7; k++) {
-                        let vdCheck = document.getElementById(`vd-${w}-${k}`);
-                        if(vdCheck) vdCheck.checked = false;
-                        document.getElementById(`btn-${w}-${k}`).classList.remove('active');
-                        document.getElementById(`time-${w}-${k}`).value = "";
-                        document.getElementById(`btn-${w}-${k}`).removeAttribute('data-auto'); 
-                    }
-                }
-            }
-
+            // THE "MAKE-WHOLE" HOLIDAY LOOP
             for (let i = 0; i < 14; i++) {
                 let dayObj = dayMap[i];
                 let card = document.getElementById(`card-${dayObj.w}-${dayObj.d}`);
@@ -951,36 +1007,35 @@
                 
                 card.classList.remove('hol-worked', 'hol-unworked');
                 let isHoliday = (sysHolName !== null) || (holCheck && holCheck.checked);
+                dayObj.uhHrs = 0;
                 
                 if (isHoliday) { 
-                    if (dayObj.hasWork) { 
-                        card.classList.add('hol-worked'); 
-                    } else { 
-                        if(!dayObj.ro) { 
-                            let disqualified = false;
-                            if (dayObj.dq) disqualified = true;
-                            if (!disqualified) {
-                                for (let b = i - 1; b >= 0; b--) {
-                                    if (dayMap[b].isScheduled) {
-                                        if (dayMap[b].ro) disqualified = true;
-                                        break; 
-                                    }
-                                }
+                    let disqualified = false;
+                    if (dayObj.dq) disqualified = true;
+                    if (!disqualified) {
+                        for (let b = i - 1; b >= 0; b--) {
+                            if (dayMap[b].isScheduled) { if (dayMap[b].ro) disqualified = true; break; }
+                        }
+                    }
+                    if (!disqualified) {
+                        for (let f = i + 1; f < 14; f++) {
+                            if (dayMap[f].isScheduled) { if (dayMap[f].ro) disqualified = true; break; }
+                        }
+                    }
+                    
+                    if (!disqualified) {
+                        let esH = parseFloat(document.getElementById(`es-hrs-${dayObj.w}-${dayObj.d}`).value) || 0;
+                        let totWorked = dayObj.timeHrs + esH; // 0 if on Vacation or Off
+
+                        if (totWorked === 0) {
+                            card.classList.add('hol-unworked'); 
+                            dayObj.uhHrs = 8;
+                        } else {
+                            card.classList.add('hol-worked');
+                            if (totWorked < 8 && !dayObj.ro) {
+                                dayObj.uhHrs = 8 - totWorked; // The Make-Whole Sliding Scale
                             }
-                            if (!disqualified) {
-                                for (let f = i + 1; f < 14; f++) {
-                                    if (dayMap[f].isScheduled) {
-                                        if (dayMap[f].ro) disqualified = true;
-                                        break; 
-                                    }
-                                }
-                            }
-                            if (!disqualified) {
-                                card.classList.add('hol-unworked'); 
-                                GT.uhC += (bidRate * 8); 
-                                GT.uhH += 8; 
-                            } 
-                        } 
+                        }
                     } 
                 }
             }
@@ -994,14 +1049,15 @@
                 let bPct = (parseFloat(document.getElementById('bonus-'+w).value)||0) / 100;
                 let vacBonus = 0, buck = 0;
 
+                // Process Unworked Holiday Deficits & Meal Tickets FIRST
                 for(let i=(w-1)*7; i<(w*7); i++) { 
                     let dObj = dayMap[i];
-                    if(document.getElementById(`card-${dObj.w}-${dObj.d}`).classList.contains('hol-unworked')) { wk.uhH += 8; wk.uhC += (bidRate * 8); } 
+                    if(dObj.uhHrs > 0) { wk.uhH += dObj.uhHrs; wk.uhC += (bidRate * dObj.uhHrs); }
                     if(dObj.mt) { wk.mtH += 1; wk.mtC += mtVal; }
                 }
 
                 if(isVW) { 
-                    wk.vC = vacHourly * 40; wk.vH = 40; 
+                    wk.vC += vacHourly * 40; wk.vH += 40; 
                     let weekDate = dayMap[(w-1)*7].date; 
                     if (isBonusWeek(weekDate)) vacBonus = 250.00;
                 }
@@ -1009,21 +1065,22 @@
                     for (let d = 0; d < 7; d++) {
                         if (document.getElementById(`ro-${w}-${d}`).checked) continue;
                         let isVD = document.getElementById(`vd-${w}-${d}`).checked; 
-                        if(isVD) { wk.vC += (vacHourly * 8); wk.vH += 8; continue; }
+                        let dayDate = dayMap[(w-1)*7 + d].date;
+                        let isVacArr = vacationDates.includes(dayDate.toISOString().split('T')[0]);
+                        if(isVD || isVacArr) { wk.vC += (vacHourly * 8); wk.vH += 8; continue; }
 
                         let dayIdx = (w-1)*7 + d;
                         let tH = dayMap[dayIdx].timeHrs;
                         let hasWork = dayMap[dayIdx].hasWork;
                         if(!hasWork) continue; 
 
-                        // Pull rates from inputs
                         let exV = document.getElementById(`extra-rate-${w}-${d}`).value;
                         let eR = (exV != "0") ? getRate(exV) : workRate; 
                         
                         let stH = parseFloat(document.getElementById(`step-hrs-${w}-${d}`).value) || 0;
                         let stV = document.getElementById(`step-rate-${w}-${d}`).value;
                         let stR = (stV != "0") ? getRate(stV) : 0;
-
+                        
                         let esH = parseFloat(document.getElementById(`es-hrs-${w}-${d}`).value) || 0;
                         let esV = document.getElementById(`es-rate-${w}-${d}`).value;
                         let esR = (esV != "0") ? getRate(esV) : workRate;
@@ -1031,31 +1088,22 @@
                         let isXTRA = document.getElementById(`extra-${w}-${d}`)?.checked;
                         if(document.getElementById(`call-${w}-${d}`).checked) { wk.cC += (eR * 2); wk.cH += 2; }
                         let holCheck = document.getElementById(`hol-${w}-${d}`);
-                        let isHoliday = (holCheck && holCheck.checked); 
+                        let isHoliday = (holCheck && holCheck.checked) || isUnionHoliday(dayDate.toISOString().split('T')[0]); 
                         
-                        // Fills bucket if it is NOT XTRA. (Holiday now fills. Regular now fills.)
                         let fills = !isXTRA;
-                        
-                        // NEW MATH ARCHITECTURE
-                        // 1. Process base scheduled hours (including Move Up)
-                        // 2. Process Early/Stay-Over hours separately
-                        
                         let baseHrsToProcess = tH;
                         let esHrsToProcess = esH;
-                        
-                        // --- Process Base Hours (Subject to Daily 12hr Tripwire) ---
                         let maxB = Math.ceil(baseHrsToProcess * 4);
+                        
                         for (let b = 1; b <= maxB; b++) {
                             let chunk = 0.25;
                             if (b * 0.25 > baseHrsToProcess) { chunk = baseHrsToProcess - ((b-1) * 0.25); } 
                             let h = b / 4; 
                             
-                            // Determine rate: if within Move Up hours, use stR, else eR
                             let curR = (h > (baseHrsToProcess - stH) && stR > 0) ? stR : eR; 
                             let regPart = 0, otPart = 0;
                             
-                            // Daily Tripwire (Hour 13+) -> Straight to OT
-                            if (h > 12 && !isHoliday && !isXTRA) {
+                            if (h > tripwireLimit && !isHoliday && !isXTRA) {
                                 otPart = chunk; wk.oC += (curR * 1.5 * otPart); wk.oH += otPart; wk.incC += (curR * 1.5 * otPart);
                                 continue;
                             }
@@ -1087,34 +1135,29 @@
                                 }
                             }
                         }
-
-                        // --- Process Early/Stay-Over Hours ---
+                        
                         if (esHrsToProcess > 0) {
                             let maxES = Math.ceil(esHrsToProcess * 4);
                             for (let b = 1; b <= maxES; b++) {
                                 let chunk = 0.25;
                                 if (b * 0.25 > esHrsToProcess) { chunk = esHrsToProcess - ((b-1) * 0.25); }
-                                
                                 let otPart = 0;
-                                // If it is Sunday (d===0), these hours fill the bucket but pay premium.
-                                // Otherwise, bypass bucket entirely.
-                                
                                 if (isHoliday) {
                                     otPart = chunk; wk.hC += (esR * 2.5 * otPart); wk.hH += otPart; wk.incC += (esR * 2.5 * otPart);
                                     if(d===0 && fills) buck = buck + chunk;
                                 } else {
                                     if(d===0) {
                                         otPart = chunk; wk.sC += (esR * 1.5 * otPart); wk.sH += otPart; wk.incC += (esR * 1.5 * otPart);
-                                        if(fills) buck = buck + chunk; // Sunday exception
+                                        if(fills) buck = buck + chunk; 
                                     } else {
                                         otPart = chunk; wk.oC += (esR * 1.5 * otPart); wk.oH += otPart; wk.incC += (esR * 1.5 * otPart);
-                                        // Does NOT fill bucket
                                     }
                                 }
                             }
                         }
                     }
                 }
+                
                 if (wk.vH >= 40) { let weekDate = dayMap[(w-1)*7].date; if (isBonusWeek(weekDate)) vacBonus = 250.00; }
                 
                 let smRateMult = parseFloat(document.getElementById('sm-'+w)?.getAttribute('data-rate')) || 1.5;
@@ -1127,7 +1170,7 @@
                 if(isDesShiftWorker) shiftHours += (wk.rH + wk.oH + wk.sH + wk.hH);
                 
                 GT.rH+=wk.rH; GT.rC+=wk.rC; GT.vH+=wk.vH; GT.vC+=wk.vC; GT.oH+=wk.oH; GT.oC+=wk.oC; GT.cH+=wk.cH; GT.cC+=wk.cC; GT.sH+=wk.sH; GT.sC+=wk.sC; GT.hH+=wk.hH; GT.hC+=wk.hC; GT.incC += (wk.incC * bPct); GT.vbC += vacBonus;
-                GT.mtH+=wk.mtH; GT.mtC+=wk.mtC;
+                GT.mtH+=wk.mtH; GT.mtC+=wk.mtC; GT.uhH+=wk.uhH; GT.uhC+=wk.uhC;
 
                 let wkShiftHrs = (isDesShiftWorker) ? (wk.rH + wk.oH + wk.sH + wk.hH) : 0;
                 let wkShiftPay = wkShiftHrs * 0.25;
@@ -1150,19 +1193,13 @@
             <div class="grid-label" style="color:#64ffda">Call Out</div><div class="grid-hours">${GT.cH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.cH>0?GT.cC/GT.cH:workRate)}</div><div class="grid-amt">${f(GT.cC)}</div><div class="grid-label" style="color:#e1bee7">Holiday UH</div><div class="grid-hours">${GT.uhH.toFixed(2)}h</div><div class="grid-rate">${fR(bidRate)}</div><div class="grid-amt">${f(GT.uhC)}</div><div class="grid-label" style="color:#ba68c8">Holiday Wk</div><div class="grid-hours">${GT.hH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.hH>0?GT.hC/GT.hH:workRate*2.5)}</div><div class="grid-amt">${f(GT.hC)}</div><div class="grid-label">Overtime</div><div class="grid-hours">${GT.oH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.oH>0?GT.oC/GT.oH:workRate*1.5)}</div><div class="grid-amt">${f(GT.oC)}</div><div class="grid-label" style="color:#ffa000">Sunday</div><div class="grid-hours">${GT.sH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.sH>0?GT.sC/GT.sH:workRate*1.5)}</div><div class="grid-amt">${f(GT.sC)}</div><div class="grid-label" style="color:#ffeb3b">Vacation</div><div class="grid-hours">${GT.vH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.vH>0?GT.vC/GT.vH:vacHourly)}</div><div class="grid-amt">${f(GT.vC)}</div><div class="grid-label" style="color:#ffd700">Vaca Bonus</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.vbC)}</div><div class="grid-label">Regular</div><div class="grid-hours">${GT.rH.toFixed(2)}h</div><div class="grid-rate">${fR(GT.rH>0?GT.rC/GT.rH:workRate)}</div><div class="grid-amt">${f(GT.rC)}</div><div class="grid-label" style="color:#ce93d8">Shift Diff</div><div class="grid-hours">${shiftHours.toFixed(2)}h</div><div class="grid-rate">${isDesShiftWorker?'$0.2500':'$0.0000'}</div><div class="grid-amt">${f(sAmt)}</div><div class="grid-label" style="color:#b2dfdb">Incentive</div><div class="grid-hours"></div><div class="grid-rate"></div><div class="grid-amt">${f(GT.incC)}</div><div class="grid-total"><span>Total Gross</span><span>${f(totalGross)}</span></div></div>`;
             document.getElementById('grossDisplay').innerText = f(totalGross);
             
-            // DUES LOGIC REPLACEMENT: AUTOMATIC MIN() CALCULATION
-            let dR = parseFloat(document.getElementById('duesRate').value)||0; // 1.45%
-            let dCF = parseFloat(document.getElementById('duesCapFactor').value)||1.2923; // 1.2923 Factor
+            let dR = parseFloat(document.getElementById('duesRate').value)||0; 
+            let dCF = parseFloat(document.getElementById('duesCapFactor').value)||1.2923; 
             let dHrR = parseFloat(document.getElementById('duesHrRate').value)||0.02;
 
-            // Option A: Percentage Method
             let valPct = totalGross * (dR / 100);
-
-            // Option B: Cap Factor Method (Avg Hourly Rate * Factor)
             let avgHrRate = (totalWorkHrs > 0) ? (totalGross / totalWorkHrs) : 0;
             let valCap = avgHrRate * dCF;
-
-            // Select the CHEAPER option
             let dEst = Math.min(valPct, valCap);
 
             let kR = (parseFloat(document.getElementById('kRate').value)||0)/100;
