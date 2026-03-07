@@ -978,16 +978,25 @@ function isUnionHoliday(dateStr){
                     if (hasMT && mtLabel) { mtLabel.style.borderColor = 'var(--gold)'; }
 
                     let hasWork = false;
+                    let hasMainShift = false;
+                    let parsedES = parseFloat(esH) || 0;
+                    let parsedStep = parseFloat(stepH) || 0;
+
                     if (!isVac && !ro) {
-                        let parsedES = parseFloat(esH) || 0;
-                        let parsedStep = parseFloat(stepH) || 0;
-                        if (timeHrs > 0 || parsedES > 0 || parsedStep > 0) { hasWork = true; }
-                        else if (btn.classList.contains('active')) { 
+                        // 1. Did ANY work happen? (Triggers the math engine)
+                        if (timeHrs > 0 || parsedES > 0 || parsedStep > 0 || btn.classList.contains('active')) { 
                             hasWork = true; 
-                            timeHrs = parseFloat(btn.innerText.split(' ')[0]) || 12; 
+                        }
+                        
+                        // 2. Was the MAIN shift worked? (Triggers the UI button)
+                        if (timeHrs > 0 || btn.classList.contains('active')) {
+                            hasMainShift = true;
+                            if (timeHrs === 0 && btn.classList.contains('active')) {
+                                timeHrs = parseFloat(btn.innerText.split(' ')[0]) || 12; 
+                            }
                         }
                     }
-                    
+
                     card.className = 'day-card'; 
                     btn.classList.remove('btn-green', 'btn-purple'); 
                     let sysHolName = isUnionHoliday(dateStr.split('T')[0]);
@@ -997,23 +1006,26 @@ function isUnionHoliday(dateStr){
                     else if (isVac) { card.classList.add('status-vac'); } 
                     else if (ro) { card.classList.add('ro-active'); }
 
-                    if (hasWork) {
-                        // Only activate the main button if main hours exist
-                        if (timeHrs > 0 || btn.innerText !== (typeof sLen !== 'undefined' ? sLen + " HR" : "12 HR")) {
-                            btn.classList.add('active'); 
-                        } else {
-                            btn.classList.remove('active'); // Keep it off if only drawer hours exist
-                        }
-                        
-                        if (isHol || sysHolName) { btn.classList.add('btn-purple'); card.classList.add('status-hol'); } 
-                        else if (xtra) { btn.classList.add('btn-green'); card.classList.add('status-xtra'); } 
+                    // 3. UI LOGIC: Decoupling the Button from the Drawer
+                    if (hasMainShift) {
+                        btn.classList.add('active'); 
+                        if (isHol || sysHolName) { btn.classList.add('btn-purple'); } 
+                        else if (xtra) { btn.classList.add('btn-green'); } 
                         else { card.classList.add('status-worked'); }
-                    } else if (isVac) {
+                    } else {
                         btn.classList.remove('active');
-                        document.getElementById('time-'+w+'-'+d).value = ""; 
+                        // If it's a holiday, the button stays dim.
+                        if (isHol || sysHolName) {
+                            // Do nothing to the main button
+                        } else if (isVac) {
+                            document.getElementById('time-'+w+'-'+d).value = ""; 
+                        } else if (hasWork) {
+                            // Card border shows work, but button stays dim
+                            card.classList.add('status-worked'); 
+                        }
                     }
                     
-                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, xtra: xtra, isScheduled: (hasWork || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked), mt: hasMT, isVac: isVac });
+                    dayMap.push({ w: w, d: d, date: new Date(dateStr), ro: ro, hasWork: hasWork, xtra: xtra, isScheduled: (hasMainShift || ro) && !xtra, timeHrs: timeHrs, dq: (dqCheck && dqCheck.checked), mt: hasMT, isVac: isVac });
                 }
             }
             if (dayMap.length === 0) return;
