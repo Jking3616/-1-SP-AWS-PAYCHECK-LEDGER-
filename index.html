@@ -998,9 +998,15 @@ function isUnionHoliday(dateStr){
                     else if (ro) { card.classList.add('ro-active'); }
 
                     if (hasWork) {
-                        btn.classList.add('active'); 
-                        if (isHol || sysHolName) { btn.classList.add('btn-purple'); } 
-                        else if (xtra) { btn.classList.add('btn-green'); } 
+                        // Only activate the main button if main hours exist
+                        if (timeHrs > 0 || btn.innerText !== (typeof sLen !== 'undefined' ? sLen + " HR" : "12 HR")) {
+                            btn.classList.add('active'); 
+                        } else {
+                            btn.classList.remove('active'); // Keep it off if only drawer hours exist
+                        }
+                        
+                        if (isHol || sysHolName) { btn.classList.add('btn-purple'); card.classList.add('status-hol'); } 
+                        else if (xtra) { btn.classList.add('btn-green'); card.classList.add('status-xtra'); } 
                         else { card.classList.add('status-worked'); }
                     } else if (isVac) {
                         btn.classList.remove('active');
